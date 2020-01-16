@@ -1,8 +1,8 @@
 const pluginUri = 'systems.dmx.geomaps'
 
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const CleanWebpackPlugin   = require('clean-webpack-plugin')
-const { VueLoaderPlugin }  = require('vue-loader')
+const MiniCssExtractPlugin   = require('mini-css-extract-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const { VueLoaderPlugin }    = require('vue-loader')
 
 module.exports = {
   entry: './src/main/js/plugin.js',
