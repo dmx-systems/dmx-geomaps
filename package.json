@@ -11,5 +11,9 @@
   "scripts": {
     "build": "../../node_modules/.bin/webpack -p --hide-modules",
     "stats": "../../node_modules/.bin/webpack -p --json > stats.json && ../../node_modules/.bin/webpack-bundle-analyzer stats.json src/main/resources/web"
+  },
+  "dependencies": {
+    "leaflet": "^1.6.0",
+    "vue2-leaflet": "2.2.1"
   }
 }
