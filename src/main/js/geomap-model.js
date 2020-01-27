@@ -1,27 +1,33 @@
-export default ({dm5}) => ({
+import GeomapsService from './geomaps-service'
 
-  actions: {
+export default ({dm5, axios}) => {
 
-    // Topicmap Panel protocol
+  const service = new GeomapsService(dm5, axios)
 
-    fetchTopicmap (_, id) {
-      console.log('fetchTopicmap', id, '(geomap-model)')
-      return dm5.restClient.getGeomap(id)
-    },
+  return {
+    actions: {
 
-    renderTopicmap ({rootState}, {topicmap, writable, selection}) {
-      console.log('renderTopicmap', topicmap.viewProps)
-      rootState.geomaps.geomap = topicmap
-    },
+      // Topicmap Panel protocol
 
-    // Geomap specific actions (module internal, dispatched from dm5-geomap-renderer component)
+      fetchTopicmap (_, id) {
+        console.log('fetchTopicmap', id, '(geomap-model)')
+        return service.getGeomap(id)
+      },
 
-    _storeGeomapState ({rootState}, {center, zoom}) {
-      // console.log('_storeGeomapState', center, zoom)
-      // update server
-      // if (_topicmapWritable) {     // TODO
-      dm5.restClient.setGeomapState(rootState.geomaps.geomap.id, center[1], center[0], zoom)
-      // }
+      renderTopicmap ({rootState}, {topicmap, writable, selection}) {
+        console.log('renderTopicmap', topicmap.viewProps)
+        rootState.geomaps.geomap = topicmap
+      },
+
+      // Geomap specific actions (module internal, dispatched from dm5-geomap-renderer component)
+
+      _storeGeomapState ({rootState}, {center, zoom}) {
+        // console.log('_storeGeomapState', center, zoom)
+        // update server
+        // if (_topicmapWritable) {     // TODO
+        service.setGeomapState(rootState.geomaps.geomap.id, center[1], center[0], zoom)
+        // }
+      }
     }
   }
-})
+}
