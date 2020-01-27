@@ -21,6 +21,10 @@ export default ({dm5, axios}) => {
 
       // Geomap specific actions (module internal, dispatched from dm5-geomap-renderer component)
 
+      _getDomainTopics (_, geoCoordId) {
+        return service.getDomainTopics(geoCoordId)
+      },
+
       _storeGeomapState ({rootState}, {center, zoom}) {
         // console.log('_storeGeomapState', center, zoom)
         // update server

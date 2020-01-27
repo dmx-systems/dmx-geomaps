@@ -117,7 +117,7 @@ export default {
       this.domainTopic = undefined    // clear popup
       this.domainTopics = []          // clear popup
       this.loading = true
-      this.dm5.restClient.getDomainTopics(geoCoordId).then(topics => {
+      this.$store.dispatch('_getDomainTopics', geoCoordId).then(topics => {
         // console.log('domain topic', topic)
         switch (topics.length) {
         case 0:
