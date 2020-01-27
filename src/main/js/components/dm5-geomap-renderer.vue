@@ -15,7 +15,6 @@
 <script>
 import { LMap, LTileLayer, LMarker, LPopup } from 'vue2-leaflet'
 import 'leaflet/dist/leaflet.css'
-import dm5 from 'dm5'
 
 // stupid hack so that leaflet's images work after going through webpack
 // https://github.com/PaulLeCam/react-leaflet/issues/255
@@ -41,6 +40,8 @@ export default {
   destroyed () {
     // console.log('dm5-geomap-renderer destroyed')
   },
+
+  inject: ['dm5'],
 
   props: {
     quillConfig: Object
@@ -116,7 +117,7 @@ export default {
       this.domainTopic = undefined    // clear popup
       this.domainTopics = []          // clear popup
       this.loading = true
-      dm5.restClient.getDomainTopics(geoCoordId).then(topics => {
+      this.dm5.restClient.getDomainTopics(geoCoordId).then(topics => {
         // console.log('domain topic', topic)
         switch (topics.length) {
         case 0:
@@ -133,7 +134,7 @@ export default {
 
     showDetails (topic) {
       this.loading = true
-      dm5.restClient.getTopic(topic.id, true, true).then(topic => {
+      this.dm5.restClient.getTopic(topic.id, true, true).then(topic => {
         this.domainTopic = topic
         this.loading = false
         this.updatePopup()
