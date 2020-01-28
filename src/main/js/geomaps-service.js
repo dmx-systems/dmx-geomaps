@@ -1,6 +1,6 @@
 export default function GeomapsSerive (dm5, http) {
 
-  class Geomap extends dm5.Topic {
+  const Geomap = class extends dm5.Topic {
 
     constructor (geomap) {
       super(geomap.topic)
@@ -16,6 +16,8 @@ export default function GeomapsSerive (dm5, http) {
       // TODO; skeleton needed by dm5-topicmap-panel contract
     }
   }
+
+  console.log('Instantiating GeomapsSerive')
 
   // Service
 
