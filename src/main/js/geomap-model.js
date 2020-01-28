@@ -1,8 +1,8 @@
 import GeomapsService from './geomaps-service'
 
-export default ({dm5, axios}) => {
+export default ({dm5, axios: http}) => {
 
-  const service = new GeomapsService(dm5, axios)
+  const service = new GeomapsService(dm5, http)
 
   return {
     actions: {

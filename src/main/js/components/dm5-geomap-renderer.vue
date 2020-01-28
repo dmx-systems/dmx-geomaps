@@ -170,9 +170,7 @@ export default {
   },
 
   components: {
-    LMap, LTileLayer, LMarker, LPopup,
-    'dm5-object-renderer': require('dm5-object-renderer').default,
-    'dm5-topic-list':      require('dm5-topic-list').default
+    LMap, LTileLayer, LMarker, LPopup
   }
 }
 </script>
