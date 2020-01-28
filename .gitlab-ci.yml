@@ -1,4 +1,4 @@
-# 1) Build on master commit and add the COMMIT SHORT SHA as suffix
+# 1) Every "master" commit initiates build
 maven-build:
   stage: build
   script:
@@ -13,7 +13,7 @@ maven-build:
   only:
     - master
 
-# 2) Copies SNAPSHOT builds on 'master' branch into download.dmx.systems/ci/ directory
+# 2) Copies build to both, download/ci/ and dmx-dev-container
 copy-to-ci:
   stage: deploy
   script:
@@ -31,7 +31,7 @@ copy-to-ci:
   only:
     - master
 
-# 3) Copies tagged RELEASE builds into download.dmx.systems/plugins/ directory
+# 3) Copies tagged (release) builds to download/plugins/
 copy-to-release:
   stage: deploy
   script:

@@ -22,9 +22,13 @@ export default function GeomapsSerive (dm5, http) {
 
   //
 
-  class Geomap {
+  // Note: Geomap was supposed to extend dm5.Topic. That works when built on my dev system (also in production mode)
+  // but fails at runtime when built via GitLab CI/CD: "TypeError: Cannot call a class constructor without |new|".
+  // As a workaround we don't extend. Actually no Topic features are needed, just the "id".
+  class Geomap /* extends dm5.Topic */ {
 
     constructor (geomap) {
+      // super(geomap.topic)
       this.id = geomap.topic.id
       this.viewProps = geomap.viewProps
       this.geoCoordTopics = geomap.geoCoordTopics     // instantiating dm5.Topic objects not required at the moment
