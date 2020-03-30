@@ -1,4 +1,4 @@
-# 1) Every "master" commit initiates build
+# 1) Initiates build for every "master" or "tags" push
 maven-build:
   stage: build
   script:
@@ -12,6 +12,7 @@ maven-build:
       - node_modules/
   only:
     - master
+    - tags
 
 # 2) Copies build to both, download/ci/ and dmx-dev-container
 copy-to-ci:
