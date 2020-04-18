@@ -230,16 +230,6 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         if (topic.getTypeUri().equals("dmx.contacts.address")) {
             // Note: Address is a value type. An address is immutable ### TODO
             throw new RuntimeException("postUpdateTopic() invoked for an Address topic: " + topic);
-            /* if (!abortGeocoding(topic)) {
-                Address address    = new Address(topic.getChildTopics().getModel());
-                Address oldAddress = new Address(oldTopic.getChildTopicsModel());
-                if (!address.equals(oldAddress)) {
-                    logger.info("### Address changed:" + address.changeReport(oldAddress));
-                    geocodeAndStoreFacet(address, topic);
-                } else {
-                    logger.info("Address not changed");
-                }
-            } */
         }
     }
 
@@ -256,7 +246,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
             Topic geoCoordTopic = getGeoCoordinateTopic(address);
             if (geoCoordTopic != null) {
                 logger.info(operation);
-                address.getChildTopics().getModel().put(GEO_COORDINATE, geoCoordTopic.getModel());
+                address.getChildTopics().getModel().set(GEO_COORDINATE, geoCoordTopic.getModel());
             } else {
                 logger.info(operation + " SKIPPED -- no geo coordinate in DB");
             }
@@ -326,9 +316,9 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         try {
             logger.info("Storing geo coordinate (" + geoCoord + ") of address topic " + address.getId());
             facetsService.updateFacet(address, GEO_COORDINATE_FACET, mf.newFacetValueModel(GEO_COORDINATE)
-                .put(mf.newChildTopicsModel()
-                    .put(LONGITUDE, geoCoord.lon)
-                    .put(LATITUDE,  geoCoord.lat)
+                .set(mf.newChildTopicsModel()
+                    .set(LONGITUDE, geoCoord.lon)
+                    .set(LATITUDE,  geoCoord.lat)
                 )
             );
         } catch (Exception e) {
@@ -377,28 +367,14 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
         // ---
 
-        Address(ChildTopicsModel address) {
-            // Note: some Address child topics might be deleted (resp. do not exist), so we use ""
-            // as defaults here. Otherwise "Invalid access to ChildTopicsModel" would be thrown.
-            street     = address.getString("dmx.contacts.street", "");
-            postalCode = address.getString("dmx.contacts.postal_code", "");
-            city       = address.getString("dmx.contacts.city", "");
-            country    = address.getString("dmx.contacts.country", "");
-        }
-
-        // TODO: drop it
         Address(Topic address) {
             // Note: some Address child topics might be deleted (resp. do not exist), so we use ""
             // as defaults here. Otherwise "Invalid access to ChildTopicsModel" would be thrown.
             ChildTopics children = address.getChildTopics();
-            String st = children.getStringOrNull("dmx.contacts.street");
-            String po = children.getStringOrNull("dmx.contacts.postal_code");
-            String ci = children.getStringOrNull("dmx.contacts.city");
-            String co = children.getStringOrNull("dmx.contacts.country");
-            street     = st != null ? st : "";
-            postalCode = po != null ? po : "";
-            city       = ci != null ? ci : "";
-            country    = co != null ? co : "";
+            street     = children.getString("dmx.contacts.street", "");
+            postalCode = children.getString("dmx.contacts.postal_code", "");
+            city       = children.getString("dmx.contacts.city", "");
+            country    = children.getString("dmx.contacts.country", "");
         }
 
         // ---
