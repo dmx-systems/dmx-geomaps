@@ -17,9 +17,9 @@ class GeomapType implements TopicmapType, GeomapsConstants {
     @Override
     public void initTopicmapState(Topic topicmapTopic, ViewProps viewProps, CoreService dmx) {
         dmx.getModelFactory().newViewProps()
-            .put(PROP_LONGITUDE, 11.0)      // default region is "Germany"
-            .put(PROP_LATITUDE, 51.0)
-            .put(PROP_ZOOM, 6.0)
+            .set(PROP_LONGITUDE, 11.0)      // default region is "Germany"
+            .set(PROP_LATITUDE, 51.0)
+            .set(PROP_ZOOM, 6.0)
             .store(topicmapTopic);
     }
 }

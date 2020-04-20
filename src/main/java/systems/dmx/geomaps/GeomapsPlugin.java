@@ -152,9 +152,9 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
                                @PathParam("lat") double lat, @PathParam("zoom") double zoom) {
         try {
             mf.newViewProps()
-                .put(PROP_LONGITUDE, lon)
-                .put(PROP_LATITUDE, lat)
-                .put(PROP_ZOOM, zoom)
+                .set(PROP_LONGITUDE, lon)
+                .set(PROP_LATITUDE, lat)
+                .set(PROP_ZOOM, zoom)
                 .store(dmx.getTopic(geomapId));
         } catch (Exception e) {
             throw new RuntimeException("Setting state of geomap " + geomapId + " failed (lon=" + lon + ", lat=" + lat +
@@ -259,9 +259,9 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
     private ViewProps fetchGeomapViewProps(Topic geomapTopic) {
         return mf.newViewProps()
-            .put(PROP_LONGITUDE, geomapTopic.getProperty(PROP_LONGITUDE))
-            .put(PROP_LATITUDE,  geomapTopic.getProperty(PROP_LATITUDE))
-            .put(PROP_ZOOM,      geomapTopic.getProperty(PROP_ZOOM));
+            .set(PROP_LONGITUDE, geomapTopic.getProperty(PROP_LONGITUDE))
+            .set(PROP_LATITUDE,  geomapTopic.getProperty(PROP_LATITUDE))
+            .set(PROP_ZOOM,      geomapTopic.getProperty(PROP_ZOOM));
     }
 
     private Map<Long, TopicModel> fetchGeoCoordinates(Topic geomapTopic) {
