@@ -1,13 +1,13 @@
 export default function GeomapsSerive (dm5, http) {
 
   this.getGeomap = geomapId => {
-    return http.get(`/geomap/${geomapId}`).then(response =>
+    return http.get(`/geomaps/${geomapId}`).then(response =>
       new Geomap(response.data)
     )
   }
 
   this.getDomainTopics = (geoCoordId, includeChildren, includeAssocChildren) => {
-    return http.get(`/geomap/coord/${geoCoordId}`, {params: {
+    return http.get(`/geomaps/coord/${geoCoordId}`, {params: {
       children: includeChildren,
       assoc_children: includeAssocChildren
     }}).then(response =>
@@ -17,7 +17,7 @@ export default function GeomapsSerive (dm5, http) {
 
   this.setGeomapState = dm5.utils.debounce((geomapId, lon, lat, zoom) => {
     console.log('setGeomapState', lon, lat, zoom)
-    http.put(`/geomap/${geomapId}/center/${lon}/${lat}/zoom/${zoom}`)
+    http.put(`/geomaps/${geomapId}/center/${lon}/${lat}/zoom/${zoom}`)
   }, 3000)
 
   //

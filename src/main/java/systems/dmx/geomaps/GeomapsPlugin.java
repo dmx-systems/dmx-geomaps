@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 
 
 
-@Path("/geomap")    // TODO: change to "/geomaps"
+@Path("/geomaps")
 @Consumes("application/json")
 @Produces("application/json")
 public class GeomapsPlugin extends PluginActivator implements GeomapsService, GeomapsConstants, PostCreateTopic,
@@ -131,9 +131,8 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     }
 
     // Note: not in use at the moment, see _fetchGeoCoordinates() below
-    // TODO: rename path segment "topic" to "coord"
     @PUT
-    @Path("/{id}/topic/{geo_coord_id}")
+    @Path("/{id}/coord/{geo_coord_id}")
     @Transactional
     @Override
     public void addCoordinateToGeomap(@PathParam("id") long geomapId, @PathParam("geo_coord_id") long geoCoordId) {
