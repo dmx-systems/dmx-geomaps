@@ -26,8 +26,8 @@ copy-to-ci:
     - if [ ! -d  ${DESTDIR} ]; then mkdir ${DESTDIR}; fi
     - cp target/${JARFILE} ${DESTDIR}/${DESTJARFILE}
     - ln -sf  ${DESTDIR}/${DESTJARFILE} ${DESTDIR}/${CI_PROJECT_NAME}-latest.jar
-    - docker exec dmx-dev-container ls "/usr/share/dmx/bundle-deploy/${CI_PROJECT_NAME}-*.jar"
-    - docker exec dmx-dev-container rm "/usr/share/dmx/bundle-deploy/${CI_PROJECT_NAME}-*.jar"
+    - docker exec dmx-dev-container ls /usr/share/dmx/bundle-deploy/${CI_PROJECT_NAME}-*.jar
+    - docker exec dmx-dev-container rm /usr/share/dmx/bundle-deploy/${CI_PROJECT_NAME}-*.jar
     - docker cp ${DESTDIR}/${DESTJARFILE} dmx-dev-container:/usr/share/dmx/bundle-deploy/
   dependencies:
     - maven-build
