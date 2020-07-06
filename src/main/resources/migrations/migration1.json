@@ -30,7 +30,7 @@
         {
             "value":       "Geo Coordinate Facet",
             "uri":         "dmx.geomaps.geo_coordinate_facet",
-            "dataTypeUri": "dmx.core.identity",
+            "dataTypeUri": "dmx.core.entity",
             "compDefs": [
                 {
                     "childTypeUri":        "dmx.geomaps.geo_coordinate",
