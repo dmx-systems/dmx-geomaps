@@ -15,7 +15,7 @@ export default ({dm5, axios: http}) => {
       },
 
       renderTopicmap ({rootState}, {topicmap, writable, selection}) {
-        console.log('renderTopicmap', topicmap.viewProps)
+        // console.log('renderTopicmap', topicmap.viewProps)
         rootState.geomaps.geomap = topicmap
         // TODO: return value?
       },

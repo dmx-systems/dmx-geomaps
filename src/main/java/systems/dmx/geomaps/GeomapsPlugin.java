@@ -1,5 +1,6 @@
 package systems.dmx.geomaps;
 
+import static systems.dmx.contacts.Constants.*;
 import systems.dmx.topicmaps.TopicmapsService;
 import systems.dmx.facets.FacetsService;
 
@@ -205,7 +206,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
     @Override
     public void postCreateTopic(Topic topic) {
-        if (topic.getTypeUri().equals("dmx.contacts.address")) {
+        if (topic.getTypeUri().equals(ADDRESS)) {
             if (!abortGeocoding(topic)) {
                 //
                 facetsService.addFacetTypeToTopic(topic.getId(), GEO_COORDINATE_FACET);
@@ -226,7 +227,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
     @Override
     public void postUpdateTopic(Topic topic, TopicModel updateModel, TopicModel oldTopic) {
-        if (topic.getTypeUri().equals("dmx.contacts.address")) {
+        if (topic.getTypeUri().equals(ADDRESS)) {
             // Note: Address is a value type. An address is immutable ### TODO
             throw new RuntimeException("postUpdateTopic() invoked for an Address topic: " + topic);
         }
@@ -239,7 +240,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
      */
     @Override
     public void preSendTopic(Topic topic) {
-        Topic address = topic.findChildTopic("dmx.contacts.address");
+        Topic address = topic.findChildTopic(ADDRESS);
         if (address != null) {
             String operation = "Enriching address " + address.getId() + " with its geo coordinate";
             Topic geoCoordTopic = getGeoCoordinateTopic(address);
@@ -370,10 +371,10 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
             // Note: some Address child topics might be deleted (resp. do not exist), so we use ""
             // as defaults here. Otherwise "Invalid access to ChildTopicsModel" would be thrown.
             ChildTopics children = address.getChildTopics();
-            street     = children.getString("dmx.contacts.street", "");
-            postalCode = children.getString("dmx.contacts.postal_code", "");
-            city       = children.getString("dmx.contacts.city", "");
-            country    = children.getString("dmx.contacts.country", "");
+            street     = children.getString(STREET, "");
+            postalCode = children.getString(POSTAL_CODE, "");
+            city       = children.getString(CITY, "");
+            country    = children.getString(COUNTRY, "");
         }
 
         // ---
