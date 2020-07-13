@@ -479,7 +479,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         // ---
 
         private void messageToAll(JSONObject message) {
-            dmx.getWebSocketsService().messageToAll(pluginUri, message.toString());
+            dmx.getWebSocketService().messageToAll(pluginUri, message.toString());
         }
     }
 }
