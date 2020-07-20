@@ -1,0 +1,17 @@
+{
+  "topic_types": [
+    {
+      "value":       "Geomap",
+      "uri":         "dmx.geomaps.geomap",
+      "dataTypeUri": "dmx.core.text",
+      "viewConfigTopics": [
+        {
+          "typeUri": "dmx.webclient.view_config",
+          "children": {
+            "dmx.webclient.icon": "\uf0ac"
+          }
+        }
+      ]
+    }
+  ]
+}

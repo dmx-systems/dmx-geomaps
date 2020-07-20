@@ -1,49 +1,62 @@
 {
-    "topic_types": [
+  "topic_types": [
+    {
+      "value":       "Geomap",
+      "uri":         "dmx.geomaps.geomap",
+      "dataTypeUri": "dmx.core.text",
+      "viewConfigTopics": [
         {
-            "value":       "Longitude",         // TODO: make it a prop?
-            "uri":         "dmx.geomaps.longitude",
-            "dataTypeUri": "dmx.core.number"
-        },
-        {
-            "value":       "Latitude",          // TODO: make it a prop?
-            "uri":         "dmx.geomaps.latitude",
-            "dataTypeUri": "dmx.core.number"
-        },
-        {
-            "value":       "Geo Coordinate",
-            "uri":         "dmx.geomaps.geo_coordinate",
-            "dataTypeUri": "dmx.core.value",
-            "compDefs": [
-                {
-                    "childTypeUri":        "dmx.geomaps.longitude",
-                    "childCardinalityUri": "dmx.core.one",
-                    "includeInLabel":      true
-                },
-                {
-                    "childTypeUri":        "dmx.geomaps.latitude",
-                    "childCardinalityUri": "dmx.core.one",
-                    "includeInLabel":      true
-                }
-            ]
-        },
-        {
-            "value":       "Geo Coordinate Facet",
-            "uri":         "dmx.geomaps.geo_coordinate_facet",
-            "dataTypeUri": "dmx.core.entity",
-            "compDefs": [
-                {
-                    "childTypeUri":        "dmx.geomaps.geo_coordinate",
-                    "childCardinalityUri": "dmx.core.one"
-                }
-            ]
+          "typeUri": "dmx.webclient.view_config",
+          "children": {
+            "dmx.webclient.icon": "\uf0ac"
+          }
         }
-    ],
-    "assoc_types": [
+      ]
+    },
+    {
+      "value":       "Longitude",
+      "uri":         "dmx.geomaps.longitude",
+      "dataTypeUri": "dmx.core.number"
+    },
+    {
+      "value":       "Latitude",
+      "uri":         "dmx.geomaps.latitude",
+      "dataTypeUri": "dmx.core.number"
+    },
+    {
+      "value":       "Geo Coordinate",
+      "uri":         "dmx.geomaps.geo_coordinate",
+      "dataTypeUri": "dmx.core.value",
+      "compDefs": [
         {
-            "value":       "Geomap Context",
-            "uri":         "dmx.geomaps.geomap_context",
-            "dataTypeUri": "dmx.core.text"
+          "childTypeUri":        "dmx.geomaps.longitude",
+          "childCardinalityUri": "dmx.core.one",
+          "includeInLabel":      true
+        },
+        {
+          "childTypeUri":        "dmx.geomaps.latitude",
+          "childCardinalityUri": "dmx.core.one",
+          "includeInLabel":      true
         }
-    ]
+      ]
+    },
+    {
+      "value":       "Geo Coordinate Facet",
+      "uri":         "dmx.geomaps.geo_coordinate_facet",
+      "dataTypeUri": "dmx.core.entity",
+      "compDefs": [
+        {
+          "childTypeUri":        "dmx.geomaps.geo_coordinate",
+          "childCardinalityUri": "dmx.core.one"
+        }
+      ]
+    }
+  ],
+  "assoc_types": [
+    {
+      "value":       "Geomap Context",
+      "uri":         "dmx.geomaps.geomap_context",
+      "dataTypeUri": "dmx.core.text"
+    }
+  ]
 }
