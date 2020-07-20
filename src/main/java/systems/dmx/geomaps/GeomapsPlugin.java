@@ -465,7 +465,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
         private void newGeoCoord(Topic geoCoordTopic) {
             try {
-                messageToAll(new JSONObject()
+                sendToAll(new JSONObject()
                     .put("type", "newGeoCoord")
                     .put("args", new JSONObject()
                         .put("geoCoordTopic", geoCoordTopic.toJSON())
@@ -478,8 +478,8 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
         // ---
 
-        private void messageToAll(JSONObject message) {
-            dmx.getWebSocketService().messageToAll(pluginUri, message.toString());
+        private void sendToAll(JSONObject message) {
+            dmx.getWebSocketService().sendToAll(message.toString());
         }
     }
 }
