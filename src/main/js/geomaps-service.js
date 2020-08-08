@@ -9,7 +9,7 @@ export default function GeomapsSerive (dm5, http) {
   this.getDomainTopics = (geoCoordId, includeChildren, includeAssocChildren) => {
     return http.get(`/geomaps/coord/${geoCoordId}`, {params: {
       children: includeChildren,
-      assoc_children: includeAssocChildren
+      assocChildren: includeAssocChildren
     }}).then(response =>
       dm5.utils.instantiateMany(response.data, dm5.Topic)
     )
