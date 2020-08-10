@@ -1,4 +1,4 @@
-export default function GeomapsSerive (dm5, http) {
+export default function GeomapsService (dm5, http) {
 
   this.getGeomap = geomapId => {
     return http.get(`/geomaps/${geomapId}`).then(response =>
