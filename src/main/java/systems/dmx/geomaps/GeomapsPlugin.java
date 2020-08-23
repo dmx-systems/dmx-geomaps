@@ -51,7 +51,8 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     private static final String GEOCODER_URL = "https://nominatim.openstreetmap.org/search?" +
         "street=%s&postalcode=%s&city=%s&country=%s&format=json&limit=1";
 
-    private static final String COOKIE_NO_GEOCODING = "dmx_no_geocoding";
+    private static final String NO_GEOCODING_COOKIE = "dmx_no_geocoding";
+    private static final long   NO_GEOCODING_TOKEN = -1;    // for context tracking
 
     private static final double EARTH_RADIUS_KM = 6371.009;
 
@@ -179,7 +180,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
     @Override
     public <V> V runWithoutGeocoding(Callable<V> callable) throws Exception {
-        return contextTracker.run(callable);
+        return contextTracker.run(NO_GEOCODING_TOKEN, callable);
     }
 
 
@@ -335,28 +336,33 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     private boolean abortGeocodingByCookie(Topic address) {
         boolean abort = false;
         Cookies cookies = Cookies.get();
-        if (cookies.has(COOKIE_NO_GEOCODING)) {
-            String value = cookies.get(COOKIE_NO_GEOCODING);
+        if (cookies.has(NO_GEOCODING_COOKIE)) {
+            String value = cookies.get(NO_GEOCODING_COOKIE);
             if (!value.equals("false") && !value.equals("true")) {
-                throw new RuntimeException("\"" + value + "\" is an unexpected value for the \"" + COOKIE_NO_GEOCODING +
+                throw new RuntimeException("\"" + value + "\" is an unexpected value for the \"" + NO_GEOCODING_COOKIE +
                     "\" cookie (expected are \"false\" or \"true\")");
             }
             abort = value.equals("true");
             if (abort) {
                 logger.info("Geocoding for Address topic " + address.getId() + " SUPPRESSED -- \"" +
-                    COOKIE_NO_GEOCODING + "\" cookie detected");
+                    NO_GEOCODING_COOKIE + "\" cookie detected");
             }
         }
         return abort;
     }
 
     private boolean abortGeocodingByExcecutionContext(Topic address) {
-        boolean abort = contextTracker.runsInTrackedContext();
+        boolean abort = geocodingIsSuppressed();
         if (abort) {
             logger.info("Geocoding for Address topic " + address.getId() + " SUPPRESSED -- runWithoutGeocoding() " +
                 "context detected");
         }
         return abort;
+    }
+
+    public boolean geocodingIsSuppressed() {
+        Long value = contextTracker.getValue();
+        return value != null && value == NO_GEOCODING_TOKEN;
     }
 
     // ------------------------------------------------------------------------------------------------- Private Classes
