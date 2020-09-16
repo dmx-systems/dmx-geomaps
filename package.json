@@ -1,6 +1,6 @@
 {
   "name": "dmx-geomaps",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "OpenStreetMap based geo maps for the DMX platform",
   "author": "Jörg Richter <jri@dmx.berlin>",
   "license": "AGPL-3.0",
