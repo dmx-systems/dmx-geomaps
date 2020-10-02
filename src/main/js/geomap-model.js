@@ -17,6 +17,7 @@ export default ({dm5, axios: http}) => {
       renderTopicmap ({rootState}, {topicmap, writable, selection}) {
         // console.log('renderTopicmap', topicmap.viewProps)
         rootState.geomaps.geomap = topicmap
+        rootState.geomaps.writable = writable
         // TODO: return value?
       },
 
@@ -27,11 +28,11 @@ export default ({dm5, axios: http}) => {
       },
 
       _storeGeomapState ({rootState}, {center, zoom}) {
-        // console.log('_storeGeomapState', center, zoom)
+        // console.log('_storeGeomapState', rootState.geomaps.writable)
         // update server
-        // if (_topicmapWritable) {     // TODO
-        service.setGeomapState(rootState.geomaps.geomap.id, center[1], center[0], zoom)
-        // }
+        if (rootState.geomaps.writable) {
+          service.setGeomapState(rootState.geomaps.geomap.id, center[1], center[0], zoom)
+        }
       }
     }
   }

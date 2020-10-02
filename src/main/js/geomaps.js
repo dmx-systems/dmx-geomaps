@@ -1,5 +1,6 @@
 const state = {
-  geomap: undefined       // the rendered geomap (dm5.Geomap)
+  geomap: undefined,      // the rendered geomap (dm5.Geomap)
+  writable: false         // if the rendered geomap is writable by the current user (Boolean)
 }
 
 const actions = {
