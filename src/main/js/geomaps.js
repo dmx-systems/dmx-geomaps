@@ -1,5 +1,5 @@
 const state = {
-  geomap: undefined,      // the rendered geomap (dm5.Geomap)
+  geomap: undefined,      // the rendered geomap (Geomap, see geomaps-service.js)
   writable: false         // if the rendered geomap is writable by the current user (Boolean)
 }
 

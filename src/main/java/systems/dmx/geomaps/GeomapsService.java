@@ -22,12 +22,12 @@ public interface GeomapsService {
      *
      * @return  the geo coordinate, or <code>null</code>.
      */
-    GeoCoordinate getGeoCoordinate(Topic geoTopic);
+    GeoCoordinate getGeoCoordinate(Topic geoTopic);     // TODO: wording
 
     /**
      * Returns the geo coordinate encoded in a Geo Coordinate topic.
      */
-    GeoCoordinate geoCoordinate(Topic geoCoordTopic);
+    GeoCoordinate geoCoordinate(Topic geoCoordTopic);   // TODO: wording
 
     /**
      * Adds a Geo Coordinate topic to a geomap.
