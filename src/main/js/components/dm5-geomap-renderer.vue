@@ -134,7 +134,7 @@ export default {
 
     showDetails (topic) {
       this.loading = true
-      this.dm5.restClient.getTopic(topic.id, true, true).then(topic => {
+      this.dm5.rpc.getTopic(topic.id, true, true).then(topic => {
         this.domainTopic = topic
         this.loading = false
         this.updatePopup()

@@ -20,7 +20,7 @@ export default {
         // update client state + sync view (for immediate visual feedback)
         this.$store.dispatch('_deleteTopic', this.topicmapId)
         // update server state
-        this.dm5.restClient.deleteTopic(this.topicmapId).then(response => {
+        this.dm5.rpc.deleteTopic(this.topicmapId).then(response => {
           this.$store.dispatch('_processDirectives', response.directives)
         })
       }).catch(() => {})    // suppress unhandled rejection on Cancel
