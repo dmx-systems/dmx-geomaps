@@ -41,7 +41,7 @@ export default {
     // console.log('dm5-geomap-renderer destroyed')
   },
 
-  inject: ['dm5'],
+  inject: ['dmx'],
 
   props: {
     quillConfig: Object
@@ -134,7 +134,7 @@ export default {
 
     showDetails (topic) {
       this.loading = true
-      this.dm5.rpc.getTopic(topic.id, true, true).then(topic => {
+      this.dmx.rpc.getTopic(topic.id, true, true).then(topic => {
         this.domainTopic = topic
         this.loading = false
         this.updatePopup()
