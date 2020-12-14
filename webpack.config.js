@@ -37,7 +37,7 @@ module.exports = {
         loader: 'file-loader',
         options: {
           esModule: false   // Note: since file-loader 5.0 "esModule" is true by default.
-        }                   // Does not work with "require(image)" (see dm5-geomap-renderer.vue).
+        }                   // Does not work with "require(image)" (see dmx-geomap-renderer.vue).
       }
     ]
   },

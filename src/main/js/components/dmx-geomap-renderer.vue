@@ -30,15 +30,15 @@ let popup
 export default {
 
   created () {
-    // console.log('dm5-geomap-renderer created')
+    // console.log('dmx-geomap-renderer created')
   },
 
   mounted () {
-    // console.log('dm5-geomap-renderer mounted')
+    // console.log('dmx-geomap-renderer mounted')
   },
 
   destroyed () {
-    // console.log('dm5-geomap-renderer destroyed')
+    // console.log('dmx-geomap-renderer destroyed')
   },
 
   inject: ['dmx'],

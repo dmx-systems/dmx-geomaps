@@ -21,7 +21,7 @@ export default ({dmx, axios: http}) => {
         // TODO: return value?
       },
 
-      // Geomap specific actions (module internal, dispatched from dm5-geomap-renderer component)
+      // Geomap specific actions (module internal, dispatched from dmx-geomap-renderer component)
 
       _getDomainTopics (_, geoCoordId) {
         return service.getDomainTopics(geoCoordId)
