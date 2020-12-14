@@ -4,9 +4,9 @@
     <l-marker v-for="topic in geoCoordTopics" :lat-lng="latLng(topic)" :key="topic.id"
         @popupopen="popupOpen(topic.id, $event)">
       <l-popup v-loading="loading">
-        <dm5-object-renderer v-if="domainTopic" :object="domainTopic" :quill-config="quillConfig">
-        </dm5-object-renderer>
-        <dm5-topic-list v-else :topics="domainTopics" no-sort-menu @topic-click="showDetails"></dm5-topic-list>
+        <dmx-object-renderer v-if="domainTopic" :object="domainTopic" :quill-config="quillConfig">
+        </dmx-object-renderer>
+        <dmx-topic-list v-else :topics="domainTopics" no-sort-menu @topic-click="showDetails"></dmx-topic-list>
       </l-popup>
     </l-marker>
   </l-map>
