@@ -1,5 +1,5 @@
 <template>
-  <l-map class="dm5-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options">
+  <l-map class="dmx-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options">
     <l-tile-layer :url="url"></l-tile-layer>
     <l-marker v-for="topic in geoCoordTopics" :lat-lng="latLng(topic)" :key="topic.id"
         @popupopen="popupOpen(topic.id, $event)">
