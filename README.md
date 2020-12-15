@@ -1,6 +1,6 @@
 # DMX Geomaps
 
-OpenStreetMap based geo maps for the [DMX platform](https://git.dmx.systems/dmx-platform/dmx-platform)
+OpenStreetMap based geo maps for the [DMX platform](https://github.com/dmx-systems/dmx-platform)
 
 ## Version History
 

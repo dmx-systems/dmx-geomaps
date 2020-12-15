@@ -6,7 +6,7 @@
   "license": "AGPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://git.dmx.systems/dmx-plugins/dmx-geomaps.git"
+    "url": "https://github.com/dmx-systems/dmx-geomaps.git"
   },
   "scripts": {
     "build": "webpack -p --hide-modules",
