@@ -27,7 +27,7 @@ export default {
     },
 
     confirmDeletion () {
-      return this.$confirm('You\'re about to delete this Geomap!', 'Warning', {
+      return this.$confirm('You\'re about to delete a Geomap!', 'Warning', {
         type: 'warning',
         confirmButtonText: 'Delete this Geomap',
         confirmButtonClass: 'el-button--danger',
