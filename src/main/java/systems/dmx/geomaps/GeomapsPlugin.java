@@ -90,7 +90,8 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
             return new Geomap(
                 geomapTopic.getModel(),
                 fetchGeomapViewProps(geomapTopic),
-                fetchGeoCoordinates(geomapTopic)
+                fetchGeoCoordinates(geomapTopic),
+                fetchDomainTopics(geomapTopic)
             );
         } catch (Exception e) {
             throw new RuntimeException("Fetching geomap " + geomapId + " failed", e);
@@ -270,7 +271,19 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         for (Topic geoCoord : _fetchGeoCoordinates(geomapTopic)) {
             geoCoords.put(geoCoord.getId(), geoCoord.getModel());
         }
+        // logger.info("###geoCoords " + geoCoords);
         return geoCoords;
+    }
+
+    private Map<Long, List<TopicModel>> fetchDomainTopics(Topic geomapTopic) {
+        Map<Long, List<TopicModel>> domainTopics = new HashMap();
+        for (Topic domainTopic : _fetchGeoCoordinates(geomapTopic)) {
+            List domain = getDomainTopics(domainTopic.getId());
+            domainTopics.put(domainTopic.getId(), domain);
+          }
+          
+        // logger.info("@@@domainTopics" + domainTopics);
+        return domainTopics;
     }
 
     private List<? extends Topic> _fetchGeoCoordinates(Topic geomapTopic) {

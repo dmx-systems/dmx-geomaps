@@ -1,20 +1,24 @@
 <template>
-  <l-map class="dmx-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options">
+  <l-map class="dmx-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options" ref="geomapRef">
     <l-tile-layer :url="url"></l-tile-layer>
-    <l-marker v-for="topic in geoCoordTopics" :lat-lng="latLng(topic)" :key="topic.id"
-        @popupopen="popupOpen(topic.id, $event)">
-      <l-popup v-loading="loading">
-        <dmx-object-renderer v-if="domainTopic" :object="domainTopic" :quill-config="quillConfig">
-        </dmx-object-renderer>
-        <dmx-topic-list v-else :topics="domainTopics" no-sort-menu @topic-click="showDetails"></dmx-topic-list>
-      </l-popup>
+    <l-marker v-for="item in markers" :key="item.id" :lat-lng="item.coords" :icon="item.iconMarker" @l-add="$event.target.openPopup()"
+        @popupopen="popupOpen(item.domainTopics, $event)">
+
+        <l-popup v-loading="loading">
+          <dmx-object-renderer v-if="domainTopic" :object="domainTopic" :quill-config="quillConfig">
+          </dmx-object-renderer>
+          <dmx-topic-list v-else :topics="domainTopics" no-sort-menu @topic-click="showDetails">
+          </dmx-topic-list>
+        </l-popup>
+        
     </l-marker>
   </l-map>
 </template>
 
 <script>
-import { LMap, LTileLayer, LMarker, LPopup } from 'vue2-leaflet'
+import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import 'leaflet/dist/leaflet.css'
+import dmx from 'dmx-api'
 
 // stupid hack so that leaflet's images work after going through webpack
 // https://github.com/PaulLeCam/react-leaflet/issues/255
@@ -35,6 +39,43 @@ export default {
 
   mounted () {
     // console.log('dmx-geomap-renderer mounted')
+    // get svg when the map is mounted to add new L.Icon using l-add, when doing it directly leaflet creates a loop while zoom
+    setTimeout( () => {
+      for(let i = 0; i < this.geoMarkers.length; i++){
+        dmx.icons.ready.then(() => {
+          if (this.geoMarkers[i].domainTopics.length > 1 || !this.geoMarkers[i].domainTopics) {
+            this.customIcon = new L.Icon ({
+              iconSize: [26, 20],
+              iconAnchor: [13, 10],
+              iconUrl: this.defaultUrl
+            })
+          } else {
+            let topic = this.geoMarkers[i].domainTopics[0]
+            const glyph = dmx.icons.faGlyph(topic.icon)
+            const iconWidth = 0.009 * glyph.width
+            const width = iconWidth + 8
+            const height = 20    // markers are too small, recalculate??
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+                        <path d="${glyph.path}" fill="${topic.iconColor}" transform="scale(0.009 -0.009) translate(600 -2080)"></path>
+                        </svg>`
+            const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
+            this.customIcon = new L.Icon ({
+              iconSize: [width, height],
+              iconAnchor: [width/2, height/2],
+              iconUrl: svgURL
+            })
+          }
+
+          this.markers.push({
+            id: this.geoMarkers[i].geoCoordTopic.id,
+            coords: L.latLng(this.latLng(this.geoMarkers[i])),
+            iconMarker: this.customIcon,
+            domainTopics: this.geoMarkers[i].domainTopics
+          })
+        })
+      }
+    }, 2000);
+
   },
 
   destroyed () {
@@ -59,7 +100,12 @@ export default {
       // popup
       domainTopic: undefined,     // has precedence
       domainTopics: [],
-      loading: undefined
+      loading: undefined,
+
+      // markers
+      defaultUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1792"%3E%3Cpath fill="%234B87C3" d="M768 640q0 -106 -75 -181t-181 -75t-181 75t-75 181t75 181t181 75t181 -75t75 -181zM1024 640q0 109 -33 179l-364 774q-16 33 -47.5 52t-67.5 19t-67.5 -19t-46.5 -52l-365 -774q-33 -70 -33 -179q0 -212 150 -362t362 -150t362 150t150 362z"%3E%3C/path%3E%3C/svg%3E', // f041 default map marker
+      customIcon: undefined,
+      markers: [],
     }
   },
 
@@ -104,32 +150,31 @@ export default {
       }
     },
 
-    geoCoordTopics () {
-      return this.geomap && this.geomap.geoCoordTopics
+    geoMarkers () {
+      return this.geomap && this.geomap.geoMarkers
     }
   },
 
   methods: {
 
-    popupOpen (geoCoordId, event) {
+    popupOpen (domainTopics,  event) {
       // console.log('popupOpen', geoCoordId, event.popup)
       popup = event.popup
       this.domainTopic = undefined    // clear popup
       this.domainTopics = []          // clear popup
       this.loading = true
-      this.$store.dispatch('_getDomainTopics', geoCoordId).then(topics => {
-        // console.log('domain topic', topic)
-        switch (topics.length) {
+
+        switch (domainTopics.length) {
         case 0:
           throw Error(`no domain topics for geo coord topic ${geoCoordId}`)
         case 1:
-          this.showDetails(topics[0]); break
+          this.showDetails(domainTopics[0]); break
         default:
-          this.domainTopics = topics
+          this.domainTopics = domainTopics
           this.loading = false
           this.updatePopup()
         }
-      })
+
     },
 
     showDetails (topic) {
@@ -137,8 +182,9 @@ export default {
       this.dmx.rpc.getTopic(topic.id, true, true).then(topic => {
         this.domainTopic = topic
         this.loading = false
-        this.updatePopup()
+        // this.updatePopup()
       })
+
     },
 
     updatePopup () {
@@ -152,12 +198,12 @@ export default {
       */
     },
 
-    latLng (geoCoordTopic) {
+    latLng (geoMarker) {
       // Note: Leaflet uses lat-lon order while most other tools (including DMX) and formats use lon-lat order.
       // For exhaustive background information on this topic see https://macwright.org/lonlat/
       return [
-        geoCoordTopic.children['dmx.geomaps.latitude'].value,
-        geoCoordTopic.children['dmx.geomaps.longitude'].value
+        geoMarker.geoCoordTopic.children['dmx.geomaps.latitude'].value,
+        geoMarker.geoCoordTopic.children['dmx.geomaps.longitude'].value
       ]
     },
 
@@ -170,7 +216,7 @@ export default {
   },
 
   components: {
-    LMap, LTileLayer, LMarker, LPopup
+    LMap, LTileLayer, LMarker, LPopup, LIcon
   }
 }
 </script>
