@@ -7,10 +7,12 @@ export default function GeomapsService (dmx, http) {
   }
 
   this.getDomainTopics = (geoCoordId, includeChildren, includeAssocChildren) => {
-    return http.get(`/geomaps/coord/${geoCoordId}`, {params: {
-      children: includeChildren,
-      assocChildren: includeAssocChildren
-    }}).then(response =>
+    return http.get(`/geomaps/coord/${geoCoordId}`, {
+      params: {
+        children: includeChildren,
+        assocChildren: includeAssocChildren
+      }
+    }).then(response =>
       dmx.utils.instantiateMany(response.data, dmx.Topic)
     )
   }
