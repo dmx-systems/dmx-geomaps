@@ -7,12 +7,12 @@ export default {
 
   topicmapType: {
     uri: 'dmx.geomaps.geomap',
-    name: "Geomap",
+    name: 'Geomap',
     renderer: () => import('./dmx-geomap-renderer' /* webpackChunkName: "dmx-geomap-renderer" */)
   },
 
   topicmapCommands: {
-    "dmx.geomaps.geomap": [
+    'dmx.geomaps.geomap': [
       require('./components/dmx-geomap-delete').default
     ]
   }

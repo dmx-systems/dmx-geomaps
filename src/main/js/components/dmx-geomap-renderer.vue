@@ -1,5 +1,5 @@
 <template>
-  <l-map class="dmx-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options" ref="geomapRef">
+  <l-map class="dmx-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options" ref="geomapRef" @ready="ready">
     <l-tile-layer :url="url"></l-tile-layer>
     <l-marker v-for="item in markers" :key="item.id" :lat-lng="item.coords" :icon="item.iconMarker" @l-add="$event.target.openPopup()"
         @popupopen="popupOpen(item.domainTopics, $event)">
@@ -10,7 +10,7 @@
           <dmx-topic-list v-else :topics="domainTopics" no-sort-menu @topic-click="showDetails">
           </dmx-topic-list>
         </l-popup>
-        
+
     </l-marker>
   </l-map>
 </template>
@@ -39,43 +39,7 @@ export default {
 
   mounted () {
     // console.log('dmx-geomap-renderer mounted')
-    // get svg when the map is mounted to add new L.Icon using l-add, when doing it directly leaflet creates a loop while zoom
-    setTimeout( () => {
-      for(let i = 0; i < this.geoMarkers.length; i++){
-        dmx.icons.ready.then(() => {
-          if (this.geoMarkers[i].domainTopics.length > 1 || !this.geoMarkers[i].domainTopics) {
-            this.customIcon = new L.Icon ({
-              iconSize: [26, 20],
-              iconAnchor: [13, 10],
-              iconUrl: this.defaultUrl
-            })
-          } else {
-            let topic = this.geoMarkers[i].domainTopics[0]
-            const glyph = dmx.icons.faGlyph(topic.icon)
-            const iconWidth = 0.009 * glyph.width
-            const width = iconWidth + 8
-            const height = 20    // markers are too small, recalculate??
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-                        <path d="${glyph.path}" fill="${topic.iconColor}" transform="scale(0.009 -0.009) translate(600 -2080)"></path>
-                        </svg>`
-            const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
-            this.customIcon = new L.Icon ({
-              iconSize: [width, height],
-              iconAnchor: [width/2, height/2],
-              iconUrl: svgURL
-            })
-          }
-
-          this.markers.push({
-            id: this.geoMarkers[i].geoCoordTopic.id,
-            coords: L.latLng(this.latLng(this.geoMarkers[i])),
-            iconMarker: this.customIcon,
-            domainTopics: this.geoMarkers[i].domainTopics
-          })
-        })
-      }
-    }, 2000);
-
+    // console.log('map ref', this.$refs.geomapRef.mapObject)
   },
 
   destroyed () {
@@ -87,6 +51,15 @@ export default {
   props: {
     quillConfig: Object
   },
+
+
+  watch: {
+    geomap () {
+      this.createIcons()
+      // call again the method if change
+    }
+  },
+
 
   data () {
     return {
@@ -156,6 +129,62 @@ export default {
   },
 
   methods: {
+    ready () {
+      if (this.geomap) {
+        this.createIcons()
+      }
+    },
+
+    createIcons() {
+      for(let i = 0; i < this.geoMarkers.length; i++){
+        dmx.icons.ready.then(() => {
+          if (this.geoMarkers[i].domainTopics != null) {
+            if (this.geoMarkers[i].domainTopics.length > 1) {
+              this.customIcon = new L.Icon ({
+                iconSize: [26, 20],
+                iconAnchor: [13, 10],
+                iconUrl: this.defaultUrl
+              })
+            } else {
+              if (this.geoMarkers[i].domainTopics[0].assoc !=null) {
+                this.getSVGUrl(this.geoMarkers[i].domainTopics[0])
+              } else {
+                this.$store.dispatch('_getDomainTopics', this.geoMarkers[i].geoCoordTopic.id).then(topics => {
+                  this.getSVGUrl(topics[0])
+                })
+              }
+            }
+
+            this.markers.push({
+              id: this.geoMarkers[i].geoCoordTopic.id,
+              coords: L.latLng(this.latLng(this.geoMarkers[i])),
+              iconMarker: this.customIcon,
+              domainTopics: this.geoMarkers[i].domainTopics
+            })
+
+          }
+        })
+      }
+      // console.log('markers', this.markers)
+
+    },
+
+    getSVGUrl (topic) {
+      const glyph = dmx.icons.faGlyph(topic.icon)
+      const iconWidth = 0.009 * glyph.width
+      const width = iconWidth + 8
+      const height = 20    // markers are too small, recalculate??
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+                  <path d="${glyph.path}" fill="${topic.iconColor}" transform="scale(0.009 -0.009) translate(600 -2080)"></path>
+                  </svg>`
+      const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
+      this.customIcon = new L.Icon ({
+        iconSize: [width, height],
+        iconAnchor: [width/2, height/2],
+        iconUrl: svgURL
+      })
+    },
+
 
     popupOpen (domainTopics,  event) {
       // console.log('popupOpen', geoCoordId, event.popup)
@@ -219,6 +248,7 @@ export default {
     LMap, LTileLayer, LMarker, LPopup, LIcon
   }
 }
+
 </script>
 
 <style>
