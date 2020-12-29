@@ -39,7 +39,6 @@ export default {
 
   mounted () {
     // console.log('dmx-geomap-renderer mounted')
-    // console.log('map ref', this.$refs.geomapRef.mapObject)
   },
 
   destroyed () {
@@ -56,8 +55,8 @@ export default {
   watch: {
     geomap () {
       this.createIcons()
-      // call again the method if change
     }
+
   },
 
 
@@ -76,7 +75,11 @@ export default {
       loading: undefined,
 
       // markers
-      defaultUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1792"%3E%3Cpath fill="%234B87C3" d="M768 640q0 -106 -75 -181t-181 -75t-181 75t-75 181t75 181t181 75t181 -75t75 -181zM1024 640q0 109 -33 179l-364 774q-16 33 -47.5 52t-67.5 19t-67.5 -19t-46.5 -52l-365 -774q-33 -70 -33 -179q0 -212 150 -362t362 -150t362 150t150 362z"%3E%3C/path%3E%3C/svg%3E', // f041 default map marker
+      defaultIcon: new L.Icon ({
+        iconSize: [26, 20],
+        iconAnchor: [13, 10],
+        iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1792"%3E%3Cpath fill="%234B87C3" d="M768 640q0 -106 -75 -181t-181 -75t-181 75t-75 181t75 181t181 75t181 -75t75 -181zM1024 640q0 109 -33 179l-364 774q-16 33 -47.5 52t-67.5 19t-67.5 -19t-46.5 -52l-365 -774q-33 -70 -33 -179q0 -212 150 -362t362 -150t362 150t150 362z"%3E%3C/path%3E%3C/svg%3E', // f041 default map marker
+      }),
       customIcon: undefined,
       markers: [],
     }
@@ -139,52 +142,56 @@ export default {
       for(let i = 0; i < this.geoMarkers.length; i++){
         dmx.icons.ready.then(() => {
           if (this.geoMarkers[i].domainTopics != null) {
-            if (this.geoMarkers[i].domainTopics.length > 1) {
-              this.customIcon = new L.Icon ({
-                iconSize: [26, 20],
-                iconAnchor: [13, 10],
-                iconUrl: this.defaultUrl
-              })
-            } else {
-              if (this.geoMarkers[i].domainTopics[0].assoc !=null) {
-                this.getSVGUrl(this.geoMarkers[i].domainTopics[0])
-              } else {
-                this.$store.dispatch('_getDomainTopics', this.geoMarkers[i].geoCoordTopic.id).then(topics => {
-                  this.getSVGUrl(topics[0])
-                })
-              }
+            switch (true) {
+              // Multiple domainTopics
+              case this.geoMarkers[i].domainTopics.length > 1:
+                  this.customIcon = this.defaultIcon
+                  this.pushMarker(this.geoMarkers[i])
+                  break;
+              // NewGeoCoord, the domainTopic, does not have association
+              case (this.geoMarkers[i].domainTopics.length === 1) && (!this.geoMarkers[i].domainTopics[0].assoc):
+                  this.$store.dispatch('_getDomainTopics', this.geoMarkers[i].geoCoordTopic.id).then(topics => {
+                    this.geoMarkers[i].domainTopics = topics
+                    this.getSVGUrl(topics[0])
+                    this.pushMarker(this.geoMarkers[i])
+                  })
+                  break;
+              // Single domainTopic
+              default:
+                  this.getSVGUrl(this.geoMarkers[i].domainTopics[0])
+                  this.pushMarker(this.geoMarkers[i])
             }
-
-            this.markers.push({
-              id: this.geoMarkers[i].geoCoordTopic.id,
-              coords: L.latLng(this.latLng(this.geoMarkers[i])),
-              iconMarker: this.customIcon,
-              domainTopics: this.geoMarkers[i].domainTopics
-            })
 
           }
         })
       }
-      // console.log('markers', this.markers)
-
     },
 
-    getSVGUrl (topic) {
+    getSVGUrl (topic){
+      this.customIcon = []
       const glyph = dmx.icons.faGlyph(topic.icon)
       const iconWidth = 0.009 * glyph.width
       const width = iconWidth + 8
-      const height = 20    // markers are too small, recalculate??
+      const height = 20
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
                   <path d="${glyph.path}" fill="${topic.iconColor}" transform="scale(0.009 -0.009) translate(600 -2080)"></path>
                   </svg>`
       const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
       this.customIcon = new L.Icon ({
-        iconSize: [width, height],
-        iconAnchor: [width/2, height/2],
-        iconUrl: svgURL
+          iconSize: [width, height],
+          iconAnchor: [width/2, height/2],
+          iconUrl: svgURL
       })
     },
 
+    pushMarker(item) {
+      this.markers.push({
+        id: item.geoCoordTopic.id,
+        coords: L.latLng(this.latLng(item)),
+        iconMarker: this.customIcon,
+        domainTopics: item.domainTopics
+      })
+    },
 
     popupOpen (domainTopics,  event) {
       // console.log('popupOpen', geoCoordId, event.popup)
@@ -248,7 +255,6 @@ export default {
     LMap, LTileLayer, LMarker, LPopup, LIcon
   }
 }
-
 </script>
 
 <style>
