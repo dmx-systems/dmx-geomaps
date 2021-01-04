@@ -18,7 +18,6 @@
 <script>
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import 'leaflet/dist/leaflet.css'
-import dmx from 'dmx-api'
 
 // No longer needed
 // stupid hack so that leaflet's images work after going through webpack
@@ -77,10 +76,10 @@ export default {
       // markers
       defaultIcon: {
         icon: '\uf041',
-        iconColor: '#4B87C3',
+        iconColor: '#4B87C3'
       },
       customIcon: undefined,
-      markers: [],
+      markers: []
     }
   },
 
@@ -139,7 +138,7 @@ export default {
 
     createIcons() {
       for(let i = 0; i < this.geoMarkers.length; i++){
-        dmx.icons.ready.then(() => {
+        this.dmx.icons.ready.then(() => {
           if (this.geoMarkers[i].domainTopics != null) {
             switch (true) {
               // Multiple domainTopics
@@ -168,7 +167,7 @@ export default {
 
     getSVGUrl (topic){
       this.customIcon = []
-      const glyph = dmx.icons.faGlyph(topic.icon)
+      const glyph = this.dmx.icons.faGlyph(topic.icon)
       const iconWidth = 0.009 * glyph.width
       const width = iconWidth + 8
       const height = 20
@@ -209,7 +208,7 @@ export default {
           this.loading = false
           this.updatePopup()
         }
-        
+
     },
 
     showDetails (topic) {
