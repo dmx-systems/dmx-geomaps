@@ -209,16 +209,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     public void postCreateTopic(Topic topic) {
         if (topic.getTypeUri().equals(ADDRESS)) {
             if (!abortGeocoding(topic)) {
-                //
-                facetsService.addFacetTypeToTopic(topic.getId(), GEO_COORDINATE_FACET);
-                //
-                Address address = new Address(topic /* .getChildTopics().getModel() */);    // ### TODO
-                if (!address.isEmpty()) {
-                    logger.info("### New " + address);
-                    geocodeAndStoreFacet(address, topic);
-                } else {
-                    logger.info("New empty address");
-                }
+                geocodeAndStoreFacet(topic);
             }
         } else if (topic.getTypeUri().equals(GEO_COORDINATE)) {
             // logger.info("### New geo coordinate: " + topic.loadChildTopics());
@@ -294,13 +285,25 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
     // ---
 
+    private void geocodeAndStoreFacet(Topic addressTopic) {
+        facetsService.addFacetTypeToTopic(addressTopic.getId(), GEO_COORDINATE_FACET);
+        //
+        Address address = new Address(addressTopic /* .getChildTopics().getModel() */);    // ### TODO
+        if (!address.isEmpty()) {
+            logger.info("### New " + address);
+            _geocodeAndStoreFacet(address, addressTopic);
+        } else {
+            logger.info("New empty address");
+        }
+    }
+
     /**
      * Geocodes the given address and stores the resulting coordinate as a facet value of the given Address topic.
      * If geocoding (or storing the coordinate) fails a warning is logged; no exception is thrown.
      *
      * @param   topic   the Address topic to be facetted.
      */
-    private void geocodeAndStoreFacet(Address address, Topic topic) {
+    private void _geocodeAndStoreFacet(Address address, Topic topic) {
         try {
             GeoCoordinate geoCoord = address.geocode();
             storeGeoCoordinate(topic, geoCoord);
