@@ -64,8 +64,6 @@ public class Geomap implements Iterable<TopicModel>, JSONEnabled {
             return new JSONObject()
                 .put("topic", geomapTopic.toJSON())
                 .put("viewProps", viewProps.toJSON())
-                // .put("geoCoordTopics", DMXUtils.toJSONArray(geoCoords.values())) // single geoCoords list
-                // .put("domainTopics", listToJSON(domainTopics)) // single domainTopics list
                 .put("geoMarkers", geoMarkersJSON(geoCoords, domainTopics));
         } catch (Exception e) {
             throw new RuntimeException("Serialization failed", e);
@@ -84,21 +82,11 @@ public class Geomap implements Iterable<TopicModel>, JSONEnabled {
 
     // -------------------------------------------------------------------------------------------------- Private Methods
 
-    // domainTopics to JSON no needed at this time
-    private Object listToJSON(Map<Long, List<TopicModel>> domainTopics){
-        JSONArray domainList = new JSONArray();
-        for(List domainTopic : domainTopics.values()){
-            domainList.put(DMXUtils.toJSONArray(domainTopic));
-        }
-        return domainList;
-    }
-
 
     private Object geoMarkersJSON(Map<Long, TopicModel> geoCoords, Map<Long, List<TopicModel>> domainTopics) {
         JSONArray geoMarkers = new JSONArray();
         for(TopicModel item : geoCoords.values()){
             JSONObject json = new JSONObject();
-            // Object value = DMXUtils.findById(item.getId(), geoCoords.values());
             List domain = domainTopics.get(item.getId());
 
             try {

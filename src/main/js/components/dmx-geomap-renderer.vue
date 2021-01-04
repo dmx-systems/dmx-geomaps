@@ -1,7 +1,7 @@
 <template>
   <l-map class="dmx-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options" ref="geomapRef" @ready="ready">
     <l-tile-layer :url="url"></l-tile-layer>
-    <l-marker v-for="item in markers" :key="item.id" :lat-lng="item.coords" :icon="item.iconMarker" @l-add="$event.target.openPopup()"
+    <l-marker v-for="item in markers" :key="item.id" :lat-lng="item.coords" :icon="item.iconMarker"
         @popupopen="popupOpen(item.domainTopics, $event)">
 
         <l-popup v-loading="loading">
@@ -20,14 +20,15 @@ import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
 import 'leaflet/dist/leaflet.css'
 import dmx from 'dmx-api'
 
+// No longer needed
 // stupid hack so that leaflet's images work after going through webpack
 // https://github.com/PaulLeCam/react-leaflet/issues/255
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-    iconUrl:       require('leaflet/dist/images/marker-icon.png'),
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    shadowUrl:     require('leaflet/dist/images/marker-shadow.png')
-})
+// delete L.Icon.Default.prototype._getIconUrl
+// L.Icon.Default.mergeOptions({
+//     iconUrl:       require('leaflet/dist/images/marker-icon.png'),
+//     iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+//     shadowUrl:     require('leaflet/dist/images/marker-shadow.png')
+// })
 
 let popup
 
@@ -56,7 +57,6 @@ export default {
     geomap () {
       this.createIcons()
     }
-
   },
 
 
@@ -75,11 +75,10 @@ export default {
       loading: undefined,
 
       // markers
-      defaultIcon: new L.Icon ({
-        iconSize: [26, 20],
-        iconAnchor: [13, 10],
-        iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1792"%3E%3Cpath fill="%234B87C3" d="M768 640q0 -106 -75 -181t-181 -75t-181 75t-75 181t75 181t181 75t181 -75t75 -181zM1024 640q0 109 -33 179l-364 774q-16 33 -47.5 52t-67.5 19t-67.5 -19t-46.5 -52l-365 -774q-33 -70 -33 -179q0 -212 150 -362t362 -150t362 150t150 362z"%3E%3C/path%3E%3C/svg%3E', // f041 default map marker
-      }),
+      defaultIcon: {
+        icon: '\uf041',
+        iconColor: '#4B87C3',
+      },
       customIcon: undefined,
       markers: [],
     }
@@ -145,10 +144,10 @@ export default {
             switch (true) {
               // Multiple domainTopics
               case this.geoMarkers[i].domainTopics.length > 1:
-                  this.customIcon = this.defaultIcon
+                  this.getSVGUrl(this.defaultIcon)
                   this.pushMarker(this.geoMarkers[i])
                   break;
-              // NewGeoCoord, the domainTopic, does not have association
+              // NewGeoCoord, the domainTopic does not have association
               case (this.geoMarkers[i].domainTopics.length === 1) && (!this.geoMarkers[i].domainTopics[0].assoc):
                   this.$store.dispatch('_getDomainTopics', this.geoMarkers[i].geoCoordTopic.id).then(topics => {
                     this.geoMarkers[i].domainTopics = topics
@@ -193,7 +192,7 @@ export default {
       })
     },
 
-    popupOpen (domainTopics,  event) {
+    popupOpen (domainTopics, event) {
       // console.log('popupOpen', geoCoordId, event.popup)
       popup = event.popup
       this.domainTopic = undefined    // clear popup
@@ -210,7 +209,7 @@ export default {
           this.loading = false
           this.updatePopup()
         }
-
+        
     },
 
     showDetails (topic) {
