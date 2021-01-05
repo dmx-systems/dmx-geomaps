@@ -164,6 +164,22 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         }
     }
 
+    // Note: not RESTful. Needed by Migration3.
+    @Override
+    public void geocodeAndStoreFacet(Topic addressTopic) {
+        facetsService.addFacetTypeToTopic(addressTopic.getId(), GEO_COORDINATE_FACET);
+        //
+        Address address = new Address(addressTopic /* .getChildTopics().getModel() */);    // ### TODO
+        if (!address.isEmpty()) {
+            logger.info("### New " + address);
+            _geocodeAndStoreFacet(address, addressTopic);
+        } else {
+            // Never happens in DMX. Note: the storage layer never creates empty composites. If all
+            // Address fields are left empty no Address topic is created in the first place.
+            logger.info("New empty address");
+        }
+    }
+
     @GET
     @Path("/distance")
     @Override
@@ -210,16 +226,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     public void postCreateTopic(Topic topic) {
         if (topic.getTypeUri().equals(ADDRESS)) {
             if (!abortGeocoding(topic)) {
-                //
-                facetsService.addFacetTypeToTopic(topic.getId(), GEO_COORDINATE_FACET);
-                //
-                Address address = new Address(topic /* .getChildTopics().getModel() */);    // ### TODO
-                if (!address.isEmpty()) {
-                    logger.info("### New " + address);
-                    geocodeAndStoreFacet(address, topic);
-                } else {
-                    logger.info("New empty address");
-                }
+                geocodeAndStoreFacet(topic);
             }
         } else if (topic.getTypeUri().equals(GEO_COORDINATE)) {
             // logger.info("### New geo coordinate: " + topic.loadChildTopics());
@@ -313,7 +320,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
      *
      * @param   topic   the Address topic to be facetted.
      */
-    private void geocodeAndStoreFacet(Address address, Topic topic) {
+    private void _geocodeAndStoreFacet(Address address, Topic topic) {
         try {
             GeoCoordinate geoCoord = address.geocode();
             storeGeoCoordinate(topic, geoCoord);

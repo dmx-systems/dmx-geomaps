@@ -1,13 +1,14 @@
 const pluginUri = 'systems.dmx.geomaps'
 
-const MiniCssExtractPlugin   = require('mini-css-extract-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const { VueLoaderPlugin }    = require('vue-loader')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
+const {VueLoaderPlugin}    = require('vue-loader')
+const path = require('path')
 
 module.exports = {
   entry: './src/main/js/plugin.js',
   output: {
-    path: __dirname + '/src/main/resources/web',
+    path: path.join(__dirname, '/src/main/resources/web'),
     filename: '[chunkhash].plugin.js',
     chunkFilename: '[chunkhash].[name].js',
     publicPath: '/' + pluginUri + '/',
@@ -15,7 +16,7 @@ module.exports = {
     libraryTarget: 'jsonp'
   },
   resolve: {
-    extensions: [".js", ".vue"]
+    extensions: ['.js', '.vue']
   },
   module: {
     rules: [

@@ -37,6 +37,11 @@ public interface GeomapsService {
     void setGeomapState(long geomapId, double lon, double lat, double zoom);
 
     /**
+     * Geocodes the given address and stores the resulting coordinate as a facet value of the given Address topic.
+     */
+    void geocodeAndStoreFacet(Topic addressTopic);
+
+    /**
      * Calculates the distance between 2 geo coordinates in kilometer.
      */
     double getDistance(GeoCoordinate coord1, GeoCoordinate coord2);

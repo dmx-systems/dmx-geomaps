@@ -16,13 +16,13 @@
 </template>
 
 <script>
-import { LMap, LTileLayer, LMarker, LPopup, LIcon } from 'vue2-leaflet'
+import {LMap, LTileLayer, LMarker, LPopup, LIcon} from 'vue2-leaflet'
 import 'leaflet/dist/leaflet.css'
 
 // No longer needed
 // stupid hack so that leaflet's images work after going through webpack
 // https://github.com/PaulLeCam/react-leaflet/issues/255
-// delete L.Icon.Default.prototype._getIconUrl
+// delete L.Icon.Default.prototype._getIconUrl    /* global L */
 // L.Icon.Default.mergeOptions({
 //     iconUrl:       require('leaflet/dist/images/marker-icon.png'),
 //     iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
