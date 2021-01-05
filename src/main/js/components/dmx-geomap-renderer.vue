@@ -30,6 +30,7 @@ import 'leaflet/dist/leaflet.css'
 // })
 
 let popup
+const ICON_SCALING = 0.011 // max value = 0.014 (without height cut)
 
 export default {
 
@@ -168,11 +169,11 @@ export default {
     getSVGUrl (topic){
       this.customIcon = []
       const glyph = this.dmx.icons.faGlyph(topic.icon)
-      const iconWidth = 0.009 * glyph.width
+      const iconWidth = ICON_SCALING * glyph.width
       const width = iconWidth + 8
-      const height = 20
+      const height = 36
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-                  <path d="${glyph.path}" fill="${topic.iconColor}" transform="scale(0.009 -0.009) translate(600 -2080)"></path>
+                  <path d="${glyph.path}" fill="${topic.iconColor}" transform="scale(${ICON_SCALING} -${ICON_SCALING}) translate(400 -2080)"></path>
                   </svg>`
       const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
       this.customIcon = new L.Icon ({
