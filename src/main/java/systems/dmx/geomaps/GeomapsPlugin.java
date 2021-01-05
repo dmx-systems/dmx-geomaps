@@ -163,6 +163,22 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         }
     }
 
+    // Note: not RESTful. Needed by Migration3.
+    @Override
+    public void geocodeAndStoreFacet(Topic addressTopic) {
+        facetsService.addFacetTypeToTopic(addressTopic.getId(), GEO_COORDINATE_FACET);
+        //
+        Address address = new Address(addressTopic /* .getChildTopics().getModel() */);    // ### TODO
+        if (!address.isEmpty()) {
+            logger.info("### New " + address);
+            _geocodeAndStoreFacet(address, addressTopic);
+        } else {
+            // Never happens in DMX. Note: the storage layer never creates empty composites. If all
+            // Address fields are left empty no Address topic is created in the first place.
+            logger.info("New empty address");
+        }
+    }
+
     @GET
     @Path("/distance")
     @Override
@@ -284,18 +300,6 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     }
 
     // ---
-
-    private void geocodeAndStoreFacet(Topic addressTopic) {
-        facetsService.addFacetTypeToTopic(addressTopic.getId(), GEO_COORDINATE_FACET);
-        //
-        Address address = new Address(addressTopic /* .getChildTopics().getModel() */);    // ### TODO
-        if (!address.isEmpty()) {
-            logger.info("### New " + address);
-            _geocodeAndStoreFacet(address, addressTopic);
-        } else {
-            logger.info("New empty address");
-        }
-    }
 
     /**
      * Geocodes the given address and stores the resulting coordinate as a facet value of the given Address topic.
