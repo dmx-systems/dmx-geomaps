@@ -1,8 +1,9 @@
 <template>
-  <l-map class="dmx-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options" ref="geomapRef" @ready="ready">
+  <l-map class="dmx-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options" ref="geomapRef"
+        @ready="ready">
     <l-tile-layer :url="url"></l-tile-layer>
-    <l-marker v-for="item in markers" :key="item.id" :lat-lng="item.coords" :icon="item.iconMarker"
-        @popupopen="popupOpen(item.domainTopics, $event)">
+    <l-marker v-for="marker in markers" :key="marker.id" :lat-lng="marker.coords" :icon="marker.iconMarker"
+        @popupopen="popupOpen(marker.domainTopics, marker.id, $event)">
 
         <l-popup v-loading="loading">
           <dmx-object-renderer v-if="domainTopic" :object="domainTopic" :quill-config="quillConfig">
@@ -16,18 +17,8 @@
 </template>
 
 <script>
-import {LMap, LTileLayer, LMarker, LPopup, LIcon} from 'vue2-leaflet'
+import {LMap, LTileLayer, LMarker, LPopup} from 'vue2-leaflet'
 import 'leaflet/dist/leaflet.css'
-
-// No longer needed
-// stupid hack so that leaflet's images work after going through webpack
-// https://github.com/PaulLeCam/react-leaflet/issues/255
-// delete L.Icon.Default.prototype._getIconUrl    /* global L */
-// L.Icon.Default.mergeOptions({
-//     iconUrl:       require('leaflet/dist/images/marker-icon.png'),
-//     iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-//     shadowUrl:     require('leaflet/dist/images/marker-shadow.png')
-// })
 
 let popup
 const ICON_SCALING = 0.011 // max value = 0.014 (without height cut)
@@ -52,13 +43,11 @@ export default {
     quillConfig: Object
   },
 
-
   watch: {
     geomap () {
-      this.createIcons()
+      this.initMarkers()
     }
   },
-
 
   data () {
     return {
@@ -75,11 +64,6 @@ export default {
       loading: undefined,
 
       // markers
-      defaultIcon: {
-        icon: '\uf041',
-        iconColor: '#4B87C3'
-      },
-      customIcon: undefined,
       markers: []
     }
   },
@@ -133,82 +117,75 @@ export default {
   methods: {
     ready () {
       if (this.geomap) {
-        this.createIcons()
+        this.initMarkers()
       }
     },
 
-    createIcons() {
-      for(let i = 0; i < this.geoMarkers.length; i++){
-        this.dmx.icons.ready.then(() => {
+    initMarkers () {
+      this.dmx.icons.ready.then(() => {
+        for (let i = 0; i < this.geoMarkers.length; i++) {
           if (this.geoMarkers[i].domainTopics != null) {
-            switch (true) {
-              // Multiple domainTopics
-              case this.geoMarkers[i].domainTopics.length > 1:
-                  this.getSVGUrl(this.defaultIcon)
-                  this.pushMarker(this.geoMarkers[i])
-                  break;
-              // NewGeoCoord, the domainTopic does not have association
-              case (this.geoMarkers[i].domainTopics.length === 1) && (!this.geoMarkers[i].domainTopics[0].assoc):
-                  this.$store.dispatch('_getDomainTopics', this.geoMarkers[i].geoCoordTopic.id).then(topics => {
-                    this.geoMarkers[i].domainTopics = topics
-                    this.getSVGUrl(topics[0])
-                    this.pushMarker(this.geoMarkers[i])
-                  })
-                  break;
-              // Single domainTopic
-              default:
-                  this.getSVGUrl(this.geoMarkers[i].domainTopics[0])
-                  this.pushMarker(this.geoMarkers[i])
+            // Multiple domainTopics
+            if (this.geoMarkers[i].domainTopics.length > 1) {
+              this.pushMarker(this.geoMarkers[i], '\uf041', '#4B87C3')
+            // NewGeoCoord, the domainTopic does not have association
+            } else if ((this.geoMarkers[i].domainTopics.length === 1) && (!this.geoMarkers[i].domainTopics[0].assoc)) {
+              this.$store.dispatch('_getDomainTopics', this.geoMarkers[i].geoCoordTopic.id).then(topics => {
+                this.geoMarkers[i].domainTopics = topics
+                this.pushMarker(this.geoMarkers[i], topics[0].icon, topics[0].iconColor)
+              })
+            // Single domainTopic
+            } else {
+              this.pushMarker(this.geoMarkers[i], this.geoMarkers[i].domainTopics[0].icon,
+                this.geoMarkers[i].domainTopics[0].iconColor)
             }
-
           }
-        })
-      }
+        }
+      })
     },
 
-    getSVGUrl (topic){
-      this.customIcon = []
-      const glyph = this.dmx.icons.faGlyph(topic.icon)
+    createLeafletIcon (icon, color) {
+      const glyph = this.dmx.icons.faGlyph(icon)
       const iconWidth = ICON_SCALING * glyph.width
       const width = iconWidth + 8
       const height = 36
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-                  <path d="${glyph.path}" fill="${topic.iconColor}" transform="scale(${ICON_SCALING} -${ICON_SCALING}) translate(400 -2080)"></path>
-                  </svg>`
+                  <path d="${glyph.path}" fill="${color}" transform="scale(${ICON_SCALING} -${ICON_SCALING})
+                  translate(400 -2080)"></path></svg>`
       const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
-      this.customIcon = new L.Icon ({
-          iconSize: [width, height],
-          iconAnchor: [width/2, height/2],
-          iconUrl: svgURL
+      return new L.Icon({
+        iconSize: [width, height],
+        iconAnchor: [width / 2, height / 2],
+        iconUrl: svgURL
       })
     },
 
-    pushMarker(item) {
+    pushMarker (marker, icon, color) {
       this.markers.push({
-        id: item.geoCoordTopic.id,
-        coords: L.latLng(this.latLng(item)),
-        iconMarker: this.customIcon,
-        domainTopics: item.domainTopics
+        id: marker.geoCoordTopic.id,
+        coords: L.latLng(this.latLng(marker)),
+        iconMarker: this.createLeafletIcon(icon, color),
+        domainTopics: marker.domainTopics
       })
     },
 
-    popupOpen (domainTopics, event) {
+    popupOpen (domainTopics, geoCoordId, event) {
       // console.log('popupOpen', geoCoordId, event.popup)
       popup = event.popup
       this.domainTopic = undefined    // clear popup
       this.domainTopics = []          // clear popup
       this.loading = true
 
-        switch (domainTopics.length) {
-        case 0:
-          throw Error(`no domain topics for geo coord topic ${geoCoordId}`)
-        case 1:
-          this.showDetails(domainTopics[0]); break
-        default:
-          this.domainTopics = domainTopics
-          this.loading = false
-          this.updatePopup()
-        }
+      switch (domainTopics.length) {
+      case 0:
+        throw Error(`no domain topics for geo coord topic ${geoCoordId}`)
+      case 1:
+        this.showDetails(domainTopics[0]); break
+      default:
+        this.domainTopics = domainTopics
+        this.loading = false
+        this.updatePopup()
+      }
 
     },
 
@@ -251,7 +228,7 @@ export default {
   },
 
   components: {
-    LMap, LTileLayer, LMarker, LPopup, LIcon
+    LMap, LTileLayer, LMarker, LPopup
   }
 }
 </script>

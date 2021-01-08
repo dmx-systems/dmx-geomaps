@@ -36,8 +36,8 @@ export default function GeomapsService (dmx, http) {
       this.geoMarkers = this.instDomains(geomap.geoMarkers)
     }
 
-    instDomains(array){
-      for(let i = 0; i < array.length; i++){
+    instDomains (array) {
+      for (let i = 0; i < array.length; i++) {
         array[i].domainTopics = dmx.utils.instantiateMany(array[i].domainTopics, dmx.Topic)
       }
       return array
