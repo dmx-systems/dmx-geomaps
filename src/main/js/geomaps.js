@@ -11,17 +11,16 @@ const actions = {
 
   _newGeoCoord (_, {geoCoordTopic}) {
     if (state.geomap) {
-      const geoMarkers = []
+      const marker = []
       const domains = []
       dmx.rpc.getTopic(_.rootState.object.id, true, true).then(topic => {
         domains.push(topic)
+        marker.geoCoordTopic = geoCoordTopic
+        marker.domainTopics = domains
+        state.geomap.geoMarkers.push(marker)
       })
 
-      geoMarkers.geoCoordTopic = geoCoordTopic
-      geoMarkers.domainTopics = domains
-      state.geomap.geoMarkers.push(geoMarkers)
-
-      console.log('_newGeoCoord', geoMarkers)
+      console.log('_newGeoCoord', marker)
 
     } else {
       // Note: if the geomap is not loaded no update is required

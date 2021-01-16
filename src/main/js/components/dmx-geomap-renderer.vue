@@ -59,12 +59,12 @@ export default {
         attributionControl: false
       },
       // popup
-      domainTopic: undefined,     // has precedence
-      domainTopics: [],
+      domainTopic: undefined,     // domain topic (e.g. Person, Organization, Event) that correspond to a Geo Coordinate - has precedence
+      domainTopics: [],           // Group of domainTopics of an specific marker
       loading: undefined,
 
       // markers
-      markers: []
+      markers: []                 // Group of map markers with id, coords, icon, domainTopics
     }
   },
 
@@ -125,7 +125,7 @@ export default {
       this.dmx.icons.ready.then(() => {
         for (let i = 0; i < this.geoMarkers.length; i++) {
           if (this.geoMarkers[i].domainTopics != null) {
-            // Multiple domainTopics
+            // Multiple spots in a coord (domainTopics)
             if (this.geoMarkers[i].domainTopics.length > 1) {
               this.pushMarker(this.geoMarkers[i], '\uf041', '#4B87C3')
             // NewGeoCoord, the domainTopic does not have association
@@ -134,7 +134,7 @@ export default {
                 this.geoMarkers[i].domainTopics = topics
                 this.pushMarker(this.geoMarkers[i], topics[0].icon, topics[0].iconColor)
               })
-            // Single domainTopic
+            // Single spots (domainTopic)
             } else {
               this.pushMarker(this.geoMarkers[i], this.geoMarkers[i].domainTopics[0].icon,
                 this.geoMarkers[i].domainTopics[0].iconColor)
