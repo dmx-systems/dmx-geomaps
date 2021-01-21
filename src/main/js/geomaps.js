@@ -1,5 +1,15 @@
 const state = {
   geomap: undefined,      // the rendered geomap (Geomap, see geomaps-service.js)
+                          // {
+                            // id:
+                            // viewProps:
+                            // geoMarkers: [
+                            //   {
+                            //     geoCoordTopic: {}
+                            //     domainTopics: []
+                            //    }
+                            // ]
+                          // }
   writable: false         // if the rendered geomap is writable by the current user (Boolean)
 }
 

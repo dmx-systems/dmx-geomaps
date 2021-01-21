@@ -59,7 +59,8 @@ export default {
         attributionControl: false
       },
       // popup
-      domainTopic: undefined,     // domain topic (e.g. Person, Organization, Event) that correspond to a Geo Coordinate - has precedence
+      domainTopic: undefined,     // domain topic (e.g. Person, Organization, Event) that correspond to a Geo Coordinate
+                                  // - has precedence
       domainTopics: [],           // Group of domainTopics of an specific marker
       loading: undefined,
 
@@ -153,7 +154,7 @@ export default {
                   <path d="${glyph.path}" fill="${color}" transform="scale(${ICON_SCALING} -${ICON_SCALING})
                   translate(400 -2080)"></path></svg>`
       const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
-      return new L.Icon({
+      return new L.Icon({/* eslint no-undef: "off" */
         iconSize: [width, height],
         iconAnchor: [width / 2, height / 2],
         iconUrl: svgURL
