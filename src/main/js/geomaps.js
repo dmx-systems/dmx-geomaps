@@ -1,5 +1,3 @@
-import dmx from 'dmx-api'
-
 const state = {
   geomap: undefined,      // the rendered geomap (Geomap, see geomaps-service.js)
   writable: false         // if the rendered geomap is writable by the current user (Boolean)
@@ -9,17 +7,15 @@ const actions = {
 
   // WebSocket messages
 
-  _newGeoCoord (_, {geoCoordTopic}) {
+  _newGeoCoord ({rootState}, {geoCoordTopic}) {
     if (state.geomap) {
-      const marker = []
-      const domains = []
-      dmx.rpc.getTopic(_.rootState.object.id, true, true).then(topic => {
-        domains.push(topic)
-        marker.geoCoordTopic = geoCoordTopic
-        marker.domainTopics = domains
-        state.geomap.geoMarkers.push(marker)
-      })
 
+      const marker = {
+        geoCoordTopic: geoCoordTopic,
+        domainTopics: [rootState.object]
+      }
+
+      state.geomap.geoMarkers.push(marker)
       console.log('_newGeoCoord', marker)
 
     } else {
