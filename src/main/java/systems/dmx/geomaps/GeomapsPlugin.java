@@ -10,6 +10,7 @@ import systems.dmx.core.model.ChildTopicsModel;
 import systems.dmx.core.model.TopicModel;
 import systems.dmx.core.model.topicmaps.ViewProps;
 import systems.dmx.core.osgi.PluginActivator;
+import systems.dmx.core.service.ChangeReport;
 import systems.dmx.core.service.Cookies;
 import systems.dmx.core.service.Inject;
 import systems.dmx.core.service.Transactional;
@@ -234,7 +235,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     }
 
     @Override
-    public void postUpdateTopic(Topic topic, TopicModel updateModel, TopicModel oldTopic) {
+    public void postUpdateTopic(Topic topic, ChangeReport report, TopicModel updateModel) {
         if (topic.getTypeUri().equals(ADDRESS)) {
             // Note: Address is a value type. An address is immutable ### TODO
             throw new RuntimeException("postUpdateTopic() invoked for an Address topic: " + topic);
