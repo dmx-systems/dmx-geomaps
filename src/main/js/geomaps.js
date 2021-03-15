@@ -1,66 +1,66 @@
-const state = {
-  geomap: undefined,      // the rendered geomap (Geomap, see geomaps-service.js)
-                          // {
-                            // id:
-                            // viewProps:
-                            // geoMarkers: [
-                            //   {
-                            //     geoCoordTopic: {}
-                            //     domainTopics: []
-                            //    }
-                            // ]
-                          // }
-  writable: false         // if the rendered geomap is writable by the current user (Boolean)
-}
+export default ({dmx}) => {
 
-const actions = {
+  const state = {
+    geomap: undefined,      // the rendered geomap (Geomap, see geomaps-service.js)
+                            // {
+                              // id:
+                              // viewProps:
+                              // geoMarkers: [
+                              //   {
+                              //     geoCoordTopic: {}
+                              //     domainTopics: []
+                              //    }
+                              // ]
+                            // }
+    writable: false         // if the rendered geomap is writable by the current user (Boolean)
+  }
 
-  // Test action from webclient to delete topic
-  _processDirectives ({dispatch}, directives) {
-    if (state.geomap) {
-      directives.forEach(dir => {
-        if (dir.type === 'DELETE_TOPIC') {
-          console.log('domainTopicId', dir.arg.id)
-          deleteTopic(dir.arg.id)
+  const actions = {
+    // WebSocket messages
+
+    _addDomainTopic (_, {toGeoCoord, domainTopic}) {
+      const dt = new dmx.Topic(domainTopic)
+      console.log('ADD DOMAIN TOPIC')
+      if (state.geomap) {
+        addTopic(state, toGeoCoord, dt)
+      } else {
+        console.log('No geomap loaded')
+      }
+    },
+
+    _removeDomainTopic (_, {fromGeoCoord, domainTopicId}) {
+      if (state.geomap) {
+        if (!fromGeoCoord) {
+          console.log('DELETE DOMAIN TOPIC')
+          deleteTopic(state, domainTopicId)
+        } else {
+          console.log('REMOVE DOMAIN TOPIC')
+          removeTopic(state, fromGeoCoord, domainTopicId)
         }
-      })
-    } else {
-      console.log('No geomap loaded')
-    }
-  },
+      } else {
+        console.log('No geomap loaded')
+      }
+    },
 
-  // WebSocket messages
-
-  _addDomainTopic (_, {toGeoCoord, domainTopic}) {
-    console.log('ADD DOMAIN TOPIC')
-    if (state.geomap) {
-      addTopic(toGeoCoord, domainTopic)
-    } else {
-      console.log('No geomap loaded')
+    _moveDomainTopic (_, {fromGeoCoord, toGeoCoord, domainTopic}) {
+      const dt = new dmx.Topic(domainTopic)
+      console.log('MOVE DOMAIN TOPIC')
+      if (state.geomap) {
+        addTopic(state, toGeoCoord, dt)
+        removeTopic(state, fromGeoCoord, dt.id)
+      } else {
+        console.log('No geomap loaded')
+      }
     }
-  },
+  }
 
-  _removeDomainTopic (_, {fromGeoCoord, domainTopicId}) {
-    console.log('REMOVE DOMAIN TOPIC')
-    if (state.geomap) {
-      removeTopic(fromGeoCoord, domainTopicId)
-    } else {
-      console.log('No geomap loaded')
-    }
-  },
-
-  _moveDomainTopic (_, {fromGeoCoord, toGeoCoord, domainTopic}) {
-    console.log('MOVE DOMAIN TOPIC')
-    if (state.geomap) {
-      addTopic(toGeoCoord, domainTopic)
-      removeTopic(fromGeoCoord, domainTopic.id)
-    } else {
-      console.log('No geomap loaded')
-    }
+  return {
+    state,
+    actions
   }
 }
 
-function addTopic (geoCoord, domainTopic) {
+function addTopic (state, geoCoord, domainTopic) {
   let geoMarkerExist = false
   let geoMarkerIndex = -1
   for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
@@ -85,20 +85,11 @@ function addTopic (geoCoord, domainTopic) {
 
 }
 
-function removeTopic (geoCoord, domainTopicId) {
-  for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
-    if (state.geomap.geoMarkers[i].geoCoordTopic.id === geoCoord.id) {
-      state.geomap.geoMarkers[i].domainTopics = state.geomap.geoMarkers[i].domainTopics.filter(
-        data => data.id !== domainTopicId)
-    }
-  }
-}
-
-function deleteTopic (domainTopicId) {
+function deleteTopic (state, domainTopicId) {
   for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
     if (state.geomap.geoMarkers[i].domainTopics.find(elem => elem.id === domainTopicId)) {
       if (state.geomap.geoMarkers[i].domainTopics.length === 1) {
-        console.log('index', i)
+        // console.log('index', i)
         state.geomap.geoMarkers.splice(i, 1)
       } else {
         removeTopic(state.geomap.geoMarkers[i].geoCoordTopic, domainTopicId)
@@ -107,7 +98,11 @@ function deleteTopic (domainTopicId) {
   }
 }
 
-export default {
-  state,
-  actions
+function removeTopic (state, geoCoord, domainTopicId) {
+  for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
+    if (state.geomap.geoMarkers[i].geoCoordTopic.id === geoCoord.id) {
+      state.geomap.geoMarkers[i].domainTopics = state.geomap.geoMarkers[i].domainTopics.filter(
+        elem => elem.id !== domainTopicId)
+    }
+  }
 }

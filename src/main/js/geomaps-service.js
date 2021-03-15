@@ -33,10 +33,10 @@ export default function GeomapsService (dmx, http) {
       // super(geomap.topic)
       this.id = geomap.topic.id
       this.viewProps = geomap.viewProps
-      this.geoMarkers = this.instDomains(geomap.geoMarkers)
+      this.geoMarkers = this.instDomainTopics(geomap.geoMarkers)
     }
 
-    instDomains (array) {
+    instDomainTopics (array) {
       for (let i = 0; i < array.length; i++) {
         array[i].domainTopics = dmx.utils.instantiateMany(array[i].domainTopics, dmx.Topic)
       }

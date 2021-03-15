@@ -21,6 +21,7 @@ import systems.dmx.core.service.Transactional;
 import systems.dmx.core.service.event.PostCreateTopic;
 import systems.dmx.core.service.event.PostUpdateTopic;
 import systems.dmx.core.service.event.PreSendTopic;
+import systems.dmx.core.service.event.PostDeleteTopic;
 
 import systems.dmx.core.service.CoreService;
 
@@ -58,7 +59,8 @@ import java.util.logging.Logger;
 @Produces("application/json")
 public class GeomapsPlugin extends PluginActivator implements GeomapsService, GeomapsConstants, PostCreateTopic,
                                                                                                 PostUpdateTopic,
-                                                                                                PreSendTopic {
+                                                                                                PreSendTopic,
+                                                                                                PostDeleteTopic {
 
     private static final String GEOCODER_URL = "https://nominatim.openstreetmap.org/search?" +
         "street=%s&postalcode=%s&city=%s&country=%s&format=json&limit=1";
@@ -294,7 +296,13 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
               }
           }
 
+    }
 
+    @Override
+    public void postDeleteTopic(TopicModel topic) {
+      logger.info("###PostDeleteTopic " + topic);
+      // send remove-domain-topic message
+      me.removeDomainTopic(null, topic.getId());
     }
 
     // ---
@@ -563,7 +571,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
                 sendToAll(new JSONObject()
                     .put("type", "removeDomainTopic")
                     .put("args", new JSONObject()
-                        .put("fromGeoCoord", fromGeoCoord.toJSON())
+                        .put("fromGeoCoord", fromGeoCoord != null ? fromGeoCoord.toJSON() : JSONObject.NULL)
                         .put("domainTopicId", domainTopicId)
                     )
                 );
