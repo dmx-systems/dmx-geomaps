@@ -22,7 +22,7 @@ import {LMap, LTileLayer, LMarker, LPopup} from 'vue2-leaflet'
 import 'leaflet/dist/leaflet.css'
 
 let popup
-const ICON_SCALING = 0.0125 // max value = 0.014 (without height cut)
+const ICON_SCALING = 0.022 // max value = 0.026 (without being crop)
 
 export default {
 
@@ -131,7 +131,7 @@ export default {
             this.markers.splice(i, 1)
           // SINGLESPOT
           } else if (this.geoMarkers[i].domainTopics.length > 1) {
-            this.pushMarker(this.geoMarkers[i], '\uf041', '#4B87C3')
+            this.pushMarker(this.geoMarkers[i], '\uf041', '#3c90ce')
           // MULTISPOT
           } else if (this.geoMarkers[i].domainTopics.length === 1) {
             this.pushMarker(this.geoMarkers[i],
@@ -146,15 +146,15 @@ export default {
     createLeafletIcon (icon, color) {
       const glyph = this.dmx.icons.faGlyph(icon)
       const iconWidth = ICON_SCALING * glyph.width
-      const width = iconWidth + 8
-      const height = 36
+      const width = iconWidth + 4
+      const height = 40
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
                   <path d="${glyph.path}" fill="${color}" transform="scale(${ICON_SCALING} -${ICON_SCALING})
-                  translate(400 -2080)"></path></svg>`
+                  translate(100 -1400)"></path></svg>`
       const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
       return new L.Icon({/* eslint no-undef: "off" */
         iconSize: [width, height],
-        iconAnchor: [width / 2, height / 2],
+        iconAnchor: [width / 2, height/4],
         iconUrl: svgURL
       })
     },

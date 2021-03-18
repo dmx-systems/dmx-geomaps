@@ -22,7 +22,7 @@ export default ({dmx}) => {
       const dt = new dmx.Topic(domainTopic)
       console.log('ADD DOMAIN TOPIC')
       if (state.geomap) {
-        addTopic(state, toGeoCoord, dt)
+        addTopic(toGeoCoord, dt)
       } else {
         console.log('No geomap loaded')
       }
@@ -30,13 +30,17 @@ export default ({dmx}) => {
 
     _removeDomainTopic (_, {fromGeoCoord, domainTopicId}) {
       if (state.geomap) {
-        if (!fromGeoCoord) {
-          console.log('DELETE DOMAIN TOPIC')
-          deleteTopic(state, domainTopicId)
-        } else {
-          console.log('REMOVE DOMAIN TOPIC')
-          removeTopic(state, fromGeoCoord, domainTopicId)
-        }
+        console.log('REMOVE DOMAIN TOPIC')
+        removeTopic(fromGeoCoord, domainTopicId)
+      } else {
+        console.log('No geomap loaded')
+      }
+    },
+
+    _deleteDomainTopic (_, {domainTopicId}) {
+      if (state.geomap) {
+        console.log('DELETE DOMAIN TOPIC')
+        deleteTopic(domainTopicId)
       } else {
         console.log('No geomap loaded')
       }
@@ -46,63 +50,56 @@ export default ({dmx}) => {
       const dt = new dmx.Topic(domainTopic)
       console.log('MOVE DOMAIN TOPIC')
       if (state.geomap) {
-        addTopic(state, toGeoCoord, dt)
-        removeTopic(state, fromGeoCoord, dt.id)
+        addTopic(toGeoCoord, dt)
+        removeTopic(fromGeoCoord, dt.id)
       } else {
         console.log('No geomap loaded')
       }
     }
   }
 
-  return {
-    state,
-    actions
+  function findIndex (geoCoordId) {
+    for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
+      if (state.geomap.geoMarkers[i].geoCoordTopic.id === geoCoordId) {
+        return i
+      }
+    }
+    return -1
   }
-}
 
-function addTopic (state, geoCoord, domainTopic) {
-  let geoMarkerExist = false
-  let geoMarkerIndex = -1
-  for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
-    if (state.geomap.geoMarkers[i].geoCoordTopic.id === geoCoord.id) {
-      geoMarkerExist = true
-      geoMarkerIndex = i
-      break
+  function addTopic (geoCoord, domainTopic) {
+    const i = findIndex(geoCoord.id)
+    if (i >= 0) {
+      state.geomap.geoMarkers[i].domainTopics.unshift(domainTopic)
+    } else {
+      const marker = {
+        geoCoordTopic: geoCoord,
+        domainTopics: [domainTopic]
+      }
+      state.geomap.geoMarkers.push(marker)
     }
   }
 
-  if (geoMarkerExist) {
-    // console.log("Found index", geoMarkerIndex)
-    state.geomap.geoMarkers[geoMarkerIndex].domainTopics.unshift(domainTopic)
-  } else {
-    const marker = {
-      geoCoordTopic: geoCoord,
-      domainTopics: [domainTopic]
-    }
-    state.geomap.geoMarkers.push(marker)
-    console.log('_newGeoCoord', marker)
+  function removeTopic (geoCoord, domainTopicId) {
+    const i = findIndex(geoCoord.id)
+    filterDomainTopics (i, domainTopicId)
   }
 
-}
-
-function deleteTopic (state, domainTopicId) {
-  for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
-    if (state.geomap.geoMarkers[i].domainTopics.find(elem => elem.id === domainTopicId)) {
-      if (state.geomap.geoMarkers[i].domainTopics.length === 1) {
-        // console.log('index', i)
-        state.geomap.geoMarkers.splice(i, 1)
-      } else {
-        removeTopic(state.geomap.geoMarkers[i].geoCoordTopic, domainTopicId)
+  function deleteTopic (domainTopicId) {
+    for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
+      if (state.geomap.geoMarkers[i].domainTopics.find(elem => elem.id === domainTopicId)) {
+        filterDomainTopics(i, domainTopicId)
       }
     }
   }
-}
 
-function removeTopic (state, geoCoord, domainTopicId) {
-  for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
-    if (state.geomap.geoMarkers[i].geoCoordTopic.id === geoCoord.id) {
-      state.geomap.geoMarkers[i].domainTopics = state.geomap.geoMarkers[i].domainTopics.filter(
-        elem => elem.id !== domainTopicId)
-    }
+  function filterDomainTopics (i, domainTopicId) {
+    return state.geomap.geoMarkers[i].domainTopics = state.geomap.geoMarkers[i].domainTopics.filter(
+      elem => elem.id !== domainTopicId)
+  }
+
+  return {
+    state,
+    actions
   }
 }
