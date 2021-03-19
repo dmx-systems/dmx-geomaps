@@ -257,12 +257,12 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     @Override
     public void postUpdateTopic(Topic topic, ChangeReport report, TopicModel updateModel) {
           // logger.info(">>>>> report=" + report);
-          Topic domainTopic = dmx.getTopic(topic.getId());
-          logger.info("@@@ domainTopic: " + domainTopic);
-
           CompDef compDef = hasAddressChildType(topic.getType());
           if (compDef != null) {
-              List<ChangeReport.Change> changes = report.getChanges(ADDRESS + "#" + ADDRESS_ENTRY);
+              Topic domainTopic = topic;
+              logger.info("@@@ domainTopic: " + domainTopic);
+
+              List<ChangeReport.Change> changes = report.getChanges(compDef.getCompDefUri());
               if (changes != null) {
                   for (ChangeReport.Change change : changes) {
                       Topic oldValue = change.oldValue;
@@ -293,8 +293,8 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     @Override
     public void postDeleteTopic(TopicModel topic) {
       logger.info("###PostDeleteTopic " + topic);
-      // send remove-domain-topic message
-      me.deleteDomainTopic(topic.getId());
+      // send remove-domain-topic-from-all message
+      me.removeFromAll(topic.getId());
     }
 
     // ---
@@ -583,10 +583,10 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
             }
         }
 
-        private void deleteDomainTopic(Long domainTopicId) {
+        private void removeFromAll(Long domainTopicId) {
             try {
                 sendToAll(new JSONObject()
-                    .put("type", "deleteDomainTopic")
+                    .put("type", "removeFromAll")
                     .put("args", new JSONObject()
                         .put("domainTopicId", domainTopicId)
                     )

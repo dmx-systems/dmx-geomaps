@@ -154,7 +154,7 @@ export default {
       const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
       return new L.Icon({/* eslint no-undef: "off" */
         iconSize: [width, height],
-        iconAnchor: [width / 2, height/4],
+        iconAnchor: [width / 2, height / 4],
         iconUrl: svgURL
       })
     },

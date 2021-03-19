@@ -37,10 +37,10 @@ export default ({dmx}) => {
       }
     },
 
-    _deleteDomainTopic (_, {domainTopicId}) {
+    _removeFromAll (_, {domainTopicId}) {
       if (state.geomap) {
-        console.log('DELETE DOMAIN TOPIC')
-        deleteTopic(domainTopicId)
+        console.log('REMOVE FROM ALL DOMAIN TOPIC')
+        removeFromAll(domainTopicId)
       } else {
         console.log('No geomap loaded')
       }
@@ -58,6 +58,9 @@ export default ({dmx}) => {
     }
   }
 
+  /**  finds the geoCoord Id
+    * @returns the index of the geoCoord
+  */
   function findIndex (geoCoordId) {
     for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
       if (state.geomap.geoMarkers[i].geoCoordTopic.id === geoCoordId) {
@@ -67,6 +70,7 @@ export default ({dmx}) => {
     return -1
   }
 
+  // add a new domainTopic in a geoMarker or creates a new geoMarker
   function addTopic (geoCoord, domainTopic) {
     const i = findIndex(geoCoord.id)
     if (i >= 0) {
@@ -80,12 +84,14 @@ export default ({dmx}) => {
     }
   }
 
+  // removes the domainTopic from a geoMarker
   function removeTopic (geoCoord, domainTopicId) {
     const i = findIndex(geoCoord.id)
-    filterDomainTopics (i, domainTopicId)
+    filterDomainTopics(i, domainTopicId)
   }
 
-  function deleteTopic (domainTopicId) {
+  // removes the domainTopic in all geoMarkers
+  function removeFromAll (domainTopicId) {
     for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
       if (state.geomap.geoMarkers[i].domainTopics.find(elem => elem.id === domainTopicId)) {
         filterDomainTopics(i, domainTopicId)
@@ -93,9 +99,13 @@ export default ({dmx}) => {
     }
   }
 
+  /**
+    * @returns the remain domainTopics in the geoMarker
+  */
   function filterDomainTopics (i, domainTopicId) {
-    return state.geomap.geoMarkers[i].domainTopics = state.geomap.geoMarkers[i].domainTopics.filter(
+    const remainDomainTopics = state.geomap.geoMarkers[i].domainTopics = state.geomap.geoMarkers[i].domainTopics.filter(
       elem => elem.id !== domainTopicId)
+    return remainDomainTopics
   }
 
   return {
