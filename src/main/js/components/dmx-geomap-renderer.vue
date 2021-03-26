@@ -156,7 +156,7 @@ export default {
         iconSize: [width, height],
         iconAnchor: [width / 2, height],
         iconUrl: svgURL,
-        popupAnchor: [1, -height / 2]
+        popupAnchor: [1, -height / 1.5]
       })
     },
 
