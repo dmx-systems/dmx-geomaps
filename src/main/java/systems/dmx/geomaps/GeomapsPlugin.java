@@ -122,11 +122,10 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
             List<Topic> domainTopics = new ArrayList();
             for (Topic parentTopic : parentTopics) {
                 if (!parentTopic.getTypeUri().equals(ADDRESS) && !parentTopic.getTypeUri().equals(GEO_COORDINATE)) {
-                  domainTopics.add(parentTopic);
+                    domainTopics.add(parentTopic);
                 }
             }
             return domainTopics;
-
         } catch (Exception e) {
             throw new RuntimeException("Finding domain topics failed (geoCoordId=" + geoCoordId + ")", e);
         }
@@ -256,45 +255,45 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
     @Override
     public void postUpdateTopic(Topic topic, ChangeReport report, TopicModel updateModel) {
-          // logger.info(">>>>> report=" + report);
-          CompDef compDef = hasAddressChildType(topic.getType());
-          if (compDef != null) {
-              Topic domainTopic = topic;
-              logger.info("@@@ domainTopic: " + domainTopic);
+        // logger.info(">>>>> report=" + report);
+        CompDef compDef = hasAddressChildType(topic.getType());
+        if (compDef != null) {
+            Topic domainTopic = topic;
+            // logger.info("@@@ domainTopic: " + domainTopic);
 
-              List<ChangeReport.Change> changes = report.getChanges(compDef.getCompDefUri());
-              if (changes != null) {
-                  for (ChangeReport.Change change : changes) {
-                      Topic oldValue = change.oldValue;
-                      Topic newValue = change.newValue;
+            List<ChangeReport.Change> changes = report.getChanges(compDef.getCompDefUri());
+            if (changes != null) {
+                for (ChangeReport.Change change : changes) {
+                    Topic oldValue = change.oldValue;
+                    Topic newValue = change.newValue;
 
-                      if (oldValue == null) {
-                          // send add-domain-topic message
-                          Topic toGeoCoord = getGeoCoordinateTopic(newValue);
-                          me.addDomainTopic(toGeoCoord, domainTopic);
+                    if (oldValue == null) {
+                        // send add-domain-topic message
+                        Topic toGeoCoord = getGeoCoordinateTopic(newValue);
+                        me.addDomainTopic(toGeoCoord, domainTopic);
 
-                      } else if (newValue == null) {
-                          // send remove-domain-topic message
-                          Topic fromGeoCoord = getGeoCoordinateTopic(oldValue);
-                          me.removeDomainTopic(fromGeoCoord, domainTopic.getId());
+                    } else if (newValue == null) {
+                        // send remove-domain-topic message
+                        Topic fromGeoCoord = getGeoCoordinateTopic(oldValue);
+                        me.removeDomainTopic(fromGeoCoord, domainTopic.getId());
 
-                      } else {
-                          // send move-domain-topic message
-                          Topic fromGeoCoord = getGeoCoordinateTopic(oldValue);
-                          Topic toGeoCoord = getGeoCoordinateTopic(newValue);
-                          me.moveDomainTopic(fromGeoCoord, toGeoCoord, domainTopic);
-                      }
-                  }
-              }
-          }
-
+                    } else {
+                        // send move-domain-topic message
+                        Topic fromGeoCoord = getGeoCoordinateTopic(oldValue);
+                        Topic toGeoCoord = getGeoCoordinateTopic(newValue);
+                        me.moveDomainTopic(fromGeoCoord, toGeoCoord, domainTopic);
+                    }
+                }
+            }
+        }
     }
+
 
     @Override
     public void postDeleteTopic(TopicModel topic) {
-      logger.info("###PostDeleteTopic " + topic);
-      // send remove-domain-topic-from-all message
-      me.removeFromAll(topic.getId());
+        logger.info("###PostDeleteTopic " + topic);
+        // send remove-domain-topic-from-all message
+        me.removeFromAll(topic.getId());
     }
 
     // ---
@@ -342,7 +341,7 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         for (Topic geoCoordTopic : _fetchGeoCoordinates(geomapTopic)) {
             List domain = getDomainTopics(geoCoordTopic.getId());
             domainTopics.put(geoCoordTopic.getId(), domain);
-          }
+        }
         // logger.info("@@@domainTopics" + domainTopics);
         return domainTopics;
     }

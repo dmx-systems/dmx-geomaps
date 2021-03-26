@@ -129,10 +129,10 @@ export default {
           // NOSPOT (remove marker)
           if (this.geoMarkers[i].domainTopics.length === 0) {
             this.markers.splice(i, 1)
-          // SINGLESPOT
+          // MULTISPOT
           } else if (this.geoMarkers[i].domainTopics.length > 1) {
             this.pushMarker(this.geoMarkers[i], '\uf041', '#3c90ce')
-          // MULTISPOT
+          // SINGLESPOT
           } else if (this.geoMarkers[i].domainTopics.length === 1) {
             this.pushMarker(this.geoMarkers[i],
               this.geoMarkers[i].domainTopics[0].icon,
@@ -150,12 +150,13 @@ export default {
       const height = 40
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
                   <path d="${glyph.path}" fill="${color}" transform="scale(${ICON_SCALING} -${ICON_SCALING})
-                  translate(100 -1400)"></path></svg>`
+                  translate(100 -1600)"></path></svg>`
       const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg)
       return new L.Icon({/* eslint no-undef: "off" */
         iconSize: [width, height],
-        iconAnchor: [width / 2, height / 4],
-        iconUrl: svgURL
+        iconAnchor: [width / 2, height],
+        iconUrl: svgURL,
+        popupAnchor: [1, -height / 2]
       })
     },
 
@@ -240,6 +241,18 @@ export default {
 
 .leaflet-popup-content {
   min-width:  200px;
+  max-height: 300px;
   min-height:  42px;     /* see --loading-spinner-size in element-ui/packages/theme-chalk/src/common/var.scss */
+  overflow-y: scroll !important;
+  overflow-x: hidden;
 }
+
+.leaflet-popup-content .assoc.label {
+  display:none;          /* hides the association labels like Address entry and Composition from the popup */
+}
+
+.leaflet-popup-content .fa-eye::before {
+  display:none;          /* hides eye icon -  */
+}
+
 </style>

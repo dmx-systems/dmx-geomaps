@@ -42,7 +42,6 @@ public class Geomap implements Iterable<TopicModel>, JSONEnabled {
         this.viewProps = viewProps;
         this.geoCoords = geoCoords;
         this.domainTopics = domainTopics;
-
     }
 
     // -------------------------------------------------------------------------------------------------- Public Methods
@@ -85,16 +84,16 @@ public class Geomap implements Iterable<TopicModel>, JSONEnabled {
 
     private Object geoMarkersJSON(Map<Long, TopicModel> geoCoords, Map<Long, List<TopicModel>> domainTopics) {
         JSONArray geoMarkers = new JSONArray();
-        for(TopicModel item : geoCoords.values()){
+        for (TopicModel item : geoCoords.values()) {
             JSONObject json = new JSONObject();
             List domain = domainTopics.get(item.getId());
 
             try {
-              json.put("geoCoordTopic", item.toJSON());
-              json.put("domainTopics", DMXUtils.toJSONArray(domain));
-              geoMarkers.put(json);
+                json.put("geoCoordTopic", item.toJSON());
+                json.put("domainTopics", DMXUtils.toJSONArray(domain));
+                geoMarkers.put(json);
             } catch (Exception e) {
-                  throw new RuntimeException("Serialization failed", e);
+                throw new RuntimeException("Serialization failed", e);
             }
         }
 

@@ -3,14 +3,14 @@ export default ({dmx}) => {
   const state = {
     geomap: undefined,      // the rendered geomap (Geomap, see geomaps-service.js)
                             // {
-                              // id:
-                              // viewProps:
-                              // geoMarkers: [
-                              //   {
-                              //     geoCoordTopic: {}
-                              //     domainTopics: []
-                              //    }
-                              // ]
+                            //   id:
+                            //   viewProps:
+                            //   geoMarkers: [
+                            //     {
+                            //       geoCoordTopic: {}
+                            //       domainTopics: []
+                            //     }
+                            //   ]
                             // }
     writable: false         // if the rendered geomap is writable by the current user (Boolean)
   }
@@ -59,8 +59,8 @@ export default ({dmx}) => {
   }
 
   /**  finds the geoCoord Id
-    * @returns the index of the geoCoord
-  */
+   * @returns the index of the geoCoord
+   */
   function findIndex (geoCoordId) {
     for (let i = 0; i < state.geomap.geoMarkers.length; i++) {
       if (state.geomap.geoMarkers[i].geoCoordTopic.id === geoCoordId) {
@@ -100,8 +100,8 @@ export default ({dmx}) => {
   }
 
   /**
-    * @returns the remain domainTopics in the geoMarker
-  */
+   * @returns the remain domainTopics in the geoMarker
+   */
   function filterDomainTopics (i, domainTopicId) {
     const remainDomainTopics = state.geomap.geoMarkers[i].domainTopics = state.geomap.geoMarkers[i].domainTopics.filter(
       elem => elem.id !== domainTopicId)
