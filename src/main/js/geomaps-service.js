@@ -33,7 +33,14 @@ export default function GeomapsService (dmx, http) {
       // super(geomap.topic)
       this.id = geomap.topic.id
       this.viewProps = geomap.viewProps
-      this.geoCoordTopics = geomap.geoCoordTopics     // instantiating dmx.Topic objects not required at the moment
+      this.geoMarkers = this.instDomainTopics(geomap.geoMarkers)
+    }
+
+    instDomainTopics (array) {
+      for (let i = 0; i < array.length; i++) {
+        array[i].domainTopics = dmx.utils.instantiateMany(array[i].domainTopics, dmx.Topic)
+      }
+      return array
     }
 
     removeTopic (id) {

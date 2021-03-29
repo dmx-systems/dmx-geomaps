@@ -11,6 +11,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import java.util.List;
+import org.codehaus.jettison.json.JSONArray;
+
 
 
 /**
@@ -27,14 +30,18 @@ public class Geomap implements Iterable<TopicModel>, JSONEnabled {
     private ViewProps viewProps;
     private Map<Long, TopicModel> geoCoords;
 
+    // key: geoCoord ID, value: a list of domain topics
+    private Map<Long, List<TopicModel>> domainTopics;
+
     private Logger logger = Logger.getLogger(getClass().getName());
 
     // ---------------------------------------------------------------------------------------------------- Constructors
 
-    Geomap(TopicModel geomapTopic, ViewProps viewProps, Map<Long, TopicModel> geoCoords) {
+    Geomap(TopicModel geomapTopic, ViewProps viewProps, Map<Long, TopicModel> geoCoords, Map<Long, List<TopicModel>> domainTopics) {
         this.geomapTopic = geomapTopic;
         this.viewProps = viewProps;
         this.geoCoords = geoCoords;
+        this.domainTopics = domainTopics;
     }
 
     // -------------------------------------------------------------------------------------------------- Public Methods
@@ -56,7 +63,7 @@ public class Geomap implements Iterable<TopicModel>, JSONEnabled {
             return new JSONObject()
                 .put("topic", geomapTopic.toJSON())
                 .put("viewProps", viewProps.toJSON())
-                .put("geoCoordTopics", DMXUtils.toJSONArray(geoCoords.values()));
+                .put("geoMarkers", geoMarkersJSON(geoCoords, domainTopics));
         } catch (Exception e) {
             throw new RuntimeException("Serialization failed", e);
         }
@@ -71,4 +78,26 @@ public class Geomap implements Iterable<TopicModel>, JSONEnabled {
     public String toString() {
         return "geomap " + getId();
     }
+
+    // -------------------------------------------------------------------------------------------------- Private Methods
+
+
+    private Object geoMarkersJSON(Map<Long, TopicModel> geoCoords, Map<Long, List<TopicModel>> domainTopics) {
+        JSONArray geoMarkers = new JSONArray();
+        for (TopicModel item : geoCoords.values()) {
+            JSONObject json = new JSONObject();
+            List domain = domainTopics.get(item.getId());
+
+            try {
+                json.put("geoCoordTopic", item.toJSON());
+                json.put("domainTopics", DMXUtils.toJSONArray(domain));
+                geoMarkers.put(json);
+            } catch (Exception e) {
+                throw new RuntimeException("Serialization failed", e);
+            }
+        }
+
+        return geoMarkers;
+    }
+
 }

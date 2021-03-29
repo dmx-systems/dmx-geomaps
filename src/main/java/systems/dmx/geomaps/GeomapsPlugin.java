@@ -6,6 +6,10 @@ import systems.dmx.facets.FacetsService;
 
 import systems.dmx.core.ChildTopics;
 import systems.dmx.core.Topic;
+
+import systems.dmx.core.CompDef;
+import systems.dmx.core.DMXType;
+
 import systems.dmx.core.model.ChildTopicsModel;
 import systems.dmx.core.model.TopicModel;
 import systems.dmx.core.model.topicmaps.ViewProps;
@@ -17,9 +21,15 @@ import systems.dmx.core.service.Transactional;
 import systems.dmx.core.service.event.PostCreateTopic;
 import systems.dmx.core.service.event.PostUpdateTopic;
 import systems.dmx.core.service.event.PreSendTopic;
+import systems.dmx.core.service.event.PostDeleteTopic;
+
+import systems.dmx.core.service.CoreService;
+
 import systems.dmx.core.util.ContextTracker;
 import systems.dmx.core.util.DMXUtils;
 import systems.dmx.core.util.JavaUtils;
+
+import systems.dmx.core.service.ChangeReport;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
@@ -35,6 +45,8 @@ import javax.ws.rs.Consumes;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
+
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
@@ -47,7 +59,8 @@ import java.util.logging.Logger;
 @Produces("application/json")
 public class GeomapsPlugin extends PluginActivator implements GeomapsService, GeomapsConstants, PostCreateTopic,
                                                                                                 PostUpdateTopic,
-                                                                                                PreSendTopic {
+                                                                                                PreSendTopic,
+                                                                                                PostDeleteTopic {
 
     private static final String GEOCODER_URL = "https://nominatim.openstreetmap.org/search?" +
         "street=%s&postalcode=%s&city=%s&country=%s&format=json&limit=1";
@@ -91,7 +104,8 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
             return new Geomap(
                 geomapTopic.getModel(),
                 fetchGeomapViewProps(geomapTopic),
-                fetchGeoCoordinates(geomapTopic)
+                fetchGeoCoordinates(geomapTopic),
+                fetchDomainTopics(geomapTopic)
             );
         } catch (Exception e) {
             throw new RuntimeException("Fetching geomap " + geomapId + " failed", e);
@@ -104,7 +118,14 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
     @Override
     public List<Topic> getDomainTopics(@PathParam("geo_coord_id") long geoCoordId) {
         try {
-            return DMXUtils.getParentTopics(dmx.getTopic(geoCoordId));
+            List<Topic> parentTopics = DMXUtils.getParentTopics(dmx.getTopic(geoCoordId));
+            List<Topic> domainTopics = new ArrayList();
+            for (Topic parentTopic : parentTopics) {
+                if (!parentTopic.getTypeUri().equals(ADDRESS) && !parentTopic.getTypeUri().equals(GEO_COORDINATE)) {
+                    domainTopics.add(parentTopic);
+                }
+            }
+            return domainTopics;
         } catch (Exception e) {
             throw new RuntimeException("Finding domain topics failed (geoCoordId=" + geoCoordId + ")", e);
         }
@@ -228,18 +249,51 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
             if (!abortGeocoding(topic)) {
                 geocodeAndStoreFacet(topic);
             }
-        } else if (topic.getTypeUri().equals(GEO_COORDINATE)) {
-            // logger.info("### New geo coordinate: " + topic.loadChildTopics());
-            me.newGeoCoord(topic.loadChildTopics());
         }
     }
 
+
     @Override
     public void postUpdateTopic(Topic topic, ChangeReport report, TopicModel updateModel) {
-        if (topic.getTypeUri().equals(ADDRESS)) {
-            // Note: Address is a value type. An address is immutable ### TODO
-            throw new RuntimeException("postUpdateTopic() invoked for an Address topic: " + topic);
+        // logger.info(">>>>> report=" + report);
+        CompDef compDef = hasAddressChildType(topic.getType());
+        if (compDef != null) {
+            Topic domainTopic = topic;
+            // logger.info("@@@ domainTopic: " + domainTopic);
+
+            List<ChangeReport.Change> changes = report.getChanges(compDef.getCompDefUri());
+            if (changes != null) {
+                for (ChangeReport.Change change : changes) {
+                    Topic oldValue = change.oldValue;
+                    Topic newValue = change.newValue;
+
+                    if (oldValue == null) {
+                        // send add-domain-topic message
+                        Topic toGeoCoord = getGeoCoordinateTopic(newValue);
+                        me.addDomainTopic(toGeoCoord, domainTopic);
+
+                    } else if (newValue == null) {
+                        // send remove-domain-topic message
+                        Topic fromGeoCoord = getGeoCoordinateTopic(oldValue);
+                        me.removeDomainTopic(fromGeoCoord, domainTopic.getId());
+
+                    } else {
+                        // send move-domain-topic message
+                        Topic fromGeoCoord = getGeoCoordinateTopic(oldValue);
+                        Topic toGeoCoord = getGeoCoordinateTopic(newValue);
+                        me.moveDomainTopic(fromGeoCoord, toGeoCoord, domainTopic);
+                    }
+                }
+            }
         }
+    }
+
+
+    @Override
+    public void postDeleteTopic(TopicModel topic) {
+        logger.info("###PostDeleteTopic " + topic);
+        // send remove-domain-topic-from-all message
+        me.removeFromAll(topic.getId());
     }
 
     // ---
@@ -278,7 +332,18 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         for (Topic geoCoord : _fetchGeoCoordinates(geomapTopic)) {
             geoCoords.put(geoCoord.getId(), geoCoord.getModel());
         }
+        // logger.info("###geoCoords " + geoCoords);
         return geoCoords;
+    }
+
+    private Map<Long, List<TopicModel>> fetchDomainTopics(Topic geomapTopic) {
+        Map<Long, List<TopicModel>> domainTopics = new HashMap();
+        for (Topic geoCoordTopic : _fetchGeoCoordinates(geomapTopic)) {
+            List domain = getDomainTopics(geoCoordTopic.getId());
+            domainTopics.put(geoCoordTopic.getId(), domain);
+        }
+        // logger.info("@@@domainTopics" + domainTopics);
+        return domainTopics;
     }
 
     private List<? extends Topic> _fetchGeoCoordinates(Topic geomapTopic) {
@@ -367,6 +432,17 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         }
         return abort;
     }
+
+    private CompDef hasAddressChildType(DMXType type) {
+        for (CompDef compDef : type.getCompDefs()){
+            if (compDef.getChildTypeUri().equals(ADDRESS)) {
+                // logger.info("### CompDef: " + compDef);
+                return compDef;
+            }
+        }
+        return null;
+    }
+
 
     public boolean geocodingIsSuppressed() {
         Long value = contextTracker.getValue();
@@ -477,16 +553,60 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
         // ---
 
-        private void newGeoCoord(Topic geoCoordTopic) {
+
+        private void addDomainTopic(Topic toGeoCoord, Topic domainTopic) {
             try {
                 sendToAll(new JSONObject()
-                    .put("type", "newGeoCoord")
+                    .put("type", "addDomainTopic")
                     .put("args", new JSONObject()
-                        .put("geoCoordTopic", geoCoordTopic.toJSON())
+                        .put("toGeoCoord", toGeoCoord.toJSON())
+                        .put("domainTopic", domainTopic.toJSON())
                     )
                 );
             } catch (Exception e) {
-                logger.log(Level.WARNING, "Error while sending a \"newGeoCoord\" message:", e);
+                logger.log(Level.WARNING, "Error while sending a \"oldGeoCoord\" message:", e);
+            }
+        }
+
+        private void removeDomainTopic(Topic fromGeoCoord, Long domainTopicId) {
+            try {
+                sendToAll(new JSONObject()
+                    .put("type", "removeDomainTopic")
+                    .put("args", new JSONObject()
+                        .put("fromGeoCoord", fromGeoCoord.toJSON())
+                        .put("domainTopicId", domainTopicId)
+                    )
+                );
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Error while sending a \"oldGeoCoord\" message:", e);
+            }
+        }
+
+        private void removeFromAll(Long domainTopicId) {
+            try {
+                sendToAll(new JSONObject()
+                    .put("type", "removeFromAll")
+                    .put("args", new JSONObject()
+                        .put("domainTopicId", domainTopicId)
+                    )
+                );
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Error while sending a \"oldGeoCoord\" message:", e);
+            }
+        }
+
+        private void moveDomainTopic(Topic fromGeoCoord, Topic toGeoCoord, Topic domainTopic) {
+            try {
+                sendToAll(new JSONObject()
+                    .put("type", "moveDomainTopic")
+                    .put("args", new JSONObject()
+                        .put("fromGeoCoord", fromGeoCoord.toJSON())
+                        .put("toGeoCoord", toGeoCoord.toJSON())
+                        .put("domainTopic", domainTopic.toJSON())
+                    )
+                );
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "Error while sending a \"oldGeoCoord\" message:", e);
             }
         }
 
