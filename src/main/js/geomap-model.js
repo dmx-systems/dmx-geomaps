@@ -24,6 +24,9 @@ export default ({dmx, axios: http}) => {
         // TODO: return value?
       },
 
+      clearTopicmap () {
+      },
+
       // Geomap specific actions (module internal, dispatched from dmx-geomap-renderer component)
 
       _getDomainTopics (_, geoCoordId) {
