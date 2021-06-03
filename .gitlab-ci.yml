@@ -39,7 +39,7 @@ copy-to-release:
   script:
     - RELEASEDIR='/var/www/download.dmx.systems/plugins'
     - DESTDIR="${RELEASEDIR}/${CI_PROJECT_NAME}"
-    - JARFILE="$(basename $( ls target/*.jar | tail -n1))"
+    - JARFILE="$(basename $(ls target/*.jar | tail -n1))"
     - if [ ! -d  ${DESTDIR} ]; then mkdir ${DESTDIR}; fi
     - cp target/${JARFILE} ${DESTDIR}/
   dependencies:

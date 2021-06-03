@@ -14,6 +14,9 @@ export default ({dmx, axios: http}) => {
         return service.getGeomap(id)
       },
 
+      fetchTopicmapAppendix (_, topicmap) {
+      },
+
       renderTopicmap ({rootState}, {topicmap, writable, selection}) {
         // console.log('renderTopicmap', topicmap.viewProps)
         rootState.geomaps.geomap = topicmap
