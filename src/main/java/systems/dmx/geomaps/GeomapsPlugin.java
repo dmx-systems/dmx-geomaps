@@ -255,12 +255,9 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
     @Override
     public void postUpdateTopic(Topic topic, ChangeReport report, TopicModel updateModel) {
-        // logger.info(">>>>> report=" + report);
         CompDef compDef = hasAddressChildType(topic.getType());
         if (compDef != null) {
             Topic domainTopic = topic;
-            // logger.info("@@@ domainTopic: " + domainTopic);
-
             List<ChangeReport.Change> changes = report.getChanges(compDef.getCompDefUri());
             if (changes != null) {
                 for (ChangeReport.Change change : changes) {
@@ -291,7 +288,6 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
 
     @Override
     public void postDeleteTopic(TopicModel topic) {
-        logger.info("###PostDeleteTopic " + topic);
         // send remove-domain-topic-from-all message
         me.removeFromAll(topic.getId());
     }
@@ -332,7 +328,6 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
         for (Topic geoCoord : _fetchGeoCoordinates(geomapTopic)) {
             geoCoords.put(geoCoord.getId(), geoCoord.getModel());
         }
-        // logger.info("###geoCoords " + geoCoords);
         return geoCoords;
     }
 
@@ -342,7 +337,6 @@ public class GeomapsPlugin extends PluginActivator implements GeomapsService, Ge
             List domain = getDomainTopics(geoCoordTopic.getId());
             domainTopics.put(geoCoordTopic.getId(), domain);
         }
-        // logger.info("@@@domainTopics" + domainTopics);
         return domainTopics;
     }
 
