@@ -18,7 +18,7 @@ export default function GeomapsService (dmx, http) {
   }
 
   this.setGeomapState = dmx.utils.debounce((geomapId, lon, lat, zoom) => {
-    console.log('setGeomapState', lon, lat, zoom)
+    // console.log('setGeomapState', lon, lat, zoom)
     http.put(`/geomaps/${geomapId}/center/${lon}/${lat}/zoom/${zoom}`)
   }, 3000)
 

@@ -10,7 +10,7 @@ export default ({dmx, axios: http}) => {
       // Topicmap Panel protocol
 
       fetchTopicmap (_, id) {
-        console.log('fetchTopicmap', id, '(geomap-model)')
+        // console.log('fetchTopicmap', id, '(geomap-model)')
         return service.getGeomap(id)
       },
 

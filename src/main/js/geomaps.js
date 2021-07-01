@@ -20,40 +20,40 @@ export default ({dmx}) => {
 
     _addDomainTopic (_, {toGeoCoord, domainTopic}) {
       const dt = new dmx.Topic(domainTopic)
-      console.log('ADD DOMAIN TOPIC')
+      // console.log('ADD DOMAIN TOPIC')
       if (state.geomap) {
         addTopic(toGeoCoord, dt)
       } else {
-        console.log('No geomap loaded')
+        // console.log('No geomap loaded')
       }
     },
 
     _removeDomainTopic (_, {fromGeoCoord, domainTopicId}) {
       if (state.geomap) {
-        console.log('REMOVE DOMAIN TOPIC')
+        // console.log('REMOVE DOMAIN TOPIC')
         removeTopic(fromGeoCoord, domainTopicId)
       } else {
-        console.log('No geomap loaded')
+        // console.log('No geomap loaded')
       }
     },
 
     _removeFromAll (_, {domainTopicId}) {
       if (state.geomap) {
-        console.log('REMOVE FROM ALL DOMAIN TOPIC')
+        // console.log('REMOVE FROM ALL DOMAIN TOPIC')
         removeFromAll(domainTopicId)
       } else {
-        console.log('No geomap loaded')
+        // console.log('No geomap loaded')
       }
     },
 
     _moveDomainTopic (_, {fromGeoCoord, toGeoCoord, domainTopic}) {
       const dt = new dmx.Topic(domainTopic)
-      console.log('MOVE DOMAIN TOPIC')
+      // console.log('MOVE DOMAIN TOPIC')
       if (state.geomap) {
         addTopic(toGeoCoord, dt)
         removeTopic(fromGeoCoord, dt.id)
       } else {
-        console.log('No geomap loaded')
+        // console.log('No geomap loaded')
       }
     }
   }
