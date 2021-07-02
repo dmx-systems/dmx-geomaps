@@ -4,6 +4,14 @@ OpenStreetMap based geo maps for the [DMX platform](https://github.com/dmx-syste
 
 ## Version History
 
+**0.4** -- Jul 2, 2021
+
+* Improvements:
+    * Use individual topic type icons as geomap markers
+    * More complete client-sync functionality
+    * Popups with extensive content do scroll
+* Compatible with DMX 5.2
+
 **0.3** -- Jan 5, 2021
 
 * Improvements:
