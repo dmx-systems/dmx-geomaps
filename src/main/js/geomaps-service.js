@@ -43,12 +43,18 @@ export default function GeomapsService (dmx, http) {
       return array
     }
 
+    // Topicmap Panel protocol
+
+    updateTopic (topic) {
+    }
+
+    updateAssoc (assoc) {
+    }
+
     removeTopic (id) {
-      // TODO; skeleton needed by dmx-topicmap-panel contract
     }
 
     removeAssoc (id) {
-      // TODO; skeleton needed by dmx-topicmap-panel contract
     }
   }
 }
