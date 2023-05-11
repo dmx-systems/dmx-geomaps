@@ -1,18 +1,15 @@
 <template>
   <l-map class="dmx-geomap-renderer" :center.sync="center" :zoom.sync="zoom" :options="options" ref="geomapRef"
-        @ready="ready">
+      @ready="ready">
     <l-tile-layer :url="url"></l-tile-layer>
-    <l-marker v-for="marker in markers" :key="marker.id" :lat-lng="marker.coords"
-      :icon="marker.iconMarker"
+    <l-marker v-for="marker in markers" :key="marker.id" :lat-lng="marker.coords" :icon="marker.iconMarker"
         @popupopen="popupOpen(marker.domainTopics, marker.id, $event)">
-
-        <l-popup v-loading="loading">
-          <dmx-object-renderer v-if="domainTopic" :object="domainTopic" :quill-config="quillConfig">
-          </dmx-object-renderer>
-          <dmx-topic-list v-else :topics="domainTopics" no-sort-menu @topic-click="showDetails">
-          </dmx-topic-list>
-        </l-popup>
-
+      <l-popup v-loading="loading">
+        <dmx-object-renderer v-if="domainTopic" :object="domainTopic" :quill-config="quillConfig">
+        </dmx-object-renderer>
+        <dmx-topic-list v-else :topics="domainTopics" no-sort-menu @topic-click="showDetails">
+        </dmx-topic-list>
+      </l-popup>
     </l-marker>
   </l-map>
 </template>
@@ -21,13 +18,17 @@
 import {LMap, LTileLayer, LMarker, LPopup} from 'vue2-leaflet'
 import 'leaflet/dist/leaflet.css'
 
-let popup
 const ICON_SCALING = 0.022 // max value = 0.026 (without being crop)
+let iconsReady
+let popup
 
 export default {
 
   created () {
     // console.log('dmx-geomap-renderer created')
+    if (!iconsReady) {
+      iconsReady = this.dmx.icons.init()
+    }
   },
 
   mounted () {
@@ -124,7 +125,7 @@ export default {
     },
 
     initMarkers () {
-      this.dmx.icons.ready.then(() => {
+      iconsReady.then(() => {
         for (let i = 0; i < this.geoMarkers.length; i++) {
           // NOSPOT (remove marker)
           if (this.geoMarkers[i].domainTopics.length === 0) {
