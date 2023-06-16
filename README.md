@@ -4,6 +4,10 @@ OpenStreetMap based geo maps for the [DMX platform](https://github.com/dmx-syste
 
 ## Version History
 
+**0.5** -- Jun 16, 2023
+
+* Compatible with DMX 5.3
+
 **0.4** -- Jul 2, 2021
 
 * Improvements:
