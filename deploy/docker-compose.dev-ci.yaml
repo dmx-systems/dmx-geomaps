@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  dmx:
+    container_name: "${DEPLOY_PREFIX}-dmx-container"
+    restart: always
+    image: container-registry.dmx.systems/dmx-contrib/dmx-docker/dmx-latest:latest
+    ports:
+      - "${DMX_PORT}:8080"
+    environment:
+      DEBUG:
+      USER_ID: "${user_id}"
+      GROUP_ID: "${group_id}"
+      DMX_ADMIN_PASSWORD: "${DMX_ADMIN_PASSWORD}"
+      LDAP_ADMIN_PASSWORD: "${LDAP_ADMIN_PASSWORD}"
+    volumes:
+      - ./instance/dev-ci/conf:/opt/dmx/conf
+      - ./instance/dev-ci/logs:/opt/dmx/logs
+      - ./instance/dev-ci/db:/opt/dmx/dmx-db
+      - ./instance/dev-ci/filedir:/opt/dmx/dmx-filedir
+      - ./instance/dev-ci/bundle-deploy:/opt/dmx/bundle-deploy
+      - ./dmx/dev-ci/plugins:/opt/dmx/plugins:ro
+      - ./dmx/dev-ci/conf.d:/opt/dmx/conf.d:ro
+      - ./dmx/dev-ci/run.d:/opt/dmx/run.d:ro
+
+  dmxlog:
+    container_name: "${DEPLOY_PREFIX}-dmxlog-container"
+    restart: unless-stopped
+    image: container-registry.dmx.systems/dmx-intern/docker-images/busybox-httpd:latest
+    links:
+      - dmx
+    volumes:
+      - ./instance/dev-ci/logs:/home/static/logs:ro
+    ports:
+      - "${LOGS_PORT}:3000"
