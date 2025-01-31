@@ -1,12 +1,5 @@
 include:
   - project: 'devops/ci-templates'
+    ref: main
     file:
-      - '/.global.yml'
-      - '/.stages.yml'
-      - '/.maven-build.yml'
-      - '/.sonarqube-check.yml'
-      - '/.publish.yml'
-      - '/.deploy.yml'
-      - '/.install.yml'
-      - '/.present.yml'
-      - '/.preview.yml'
+      - '/.plugin-templates.yml'
