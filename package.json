@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "leaflet": "1.6.0",
-    "vue": "2.6.11",
+    "vue": "3.0.0",
     "vue2-leaflet": "2.2.1"
   },
   "devDependencies": {
