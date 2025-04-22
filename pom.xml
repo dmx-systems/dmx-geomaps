@@ -7,7 +7,7 @@
     <name>DMX Geomaps</name>
     <groupId>systems.dmx</groupId>
     <artifactId>dmx-geomaps</artifactId>
-    <version>0.5</version>
+    <version>0.5.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <parent>
