@@ -4,6 +4,13 @@ OpenStreetMap based geo maps for the [DMX platform](https://github.com/dmx-syste
 
 ## Version History
 
+**0.5.1** -- Apr 23, 2025
+
+* Chore:
+    * Use new resource handling approach as introduced in DMX 5.3.4
+    * Upgrade Babel 6 -> 7
+* Compatible with DMX 5.3.5
+
 **0.5** -- Jun 16, 2023
 
 * Compatible with DMX 5.3
